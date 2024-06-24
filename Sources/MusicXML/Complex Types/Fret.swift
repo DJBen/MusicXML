@@ -10,17 +10,17 @@
 public struct Fret {
     // MARK: - Instance Properties
 
-    // MARK: Value
-
-    public let value: Int
-
-    // MARK: One-off Attributes
+    // MARK: Attributes
 
     public let color: Color?
 
-    // MARK: - Attribute Groups
+    // MARK: Attribute Groups
 
     public let font: Font
+
+    // MARK: Value
+
+    public let value: Int
 
     // MARK: - Initializers
 
@@ -43,10 +43,14 @@ extension Fret: ExpressibleByIntegerLiteral {
 
 extension Fret: Equatable {}
 extension Fret: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case color
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         // Decode attribute groups
@@ -62,6 +66,8 @@ extension Fret: Codable {
         }
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         try font.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -71,7 +77,6 @@ extension Fret: Codable {
 }
 
 import XMLCoder
-
 extension Fret: DynamicNodeEncoding {
     public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
         switch key {

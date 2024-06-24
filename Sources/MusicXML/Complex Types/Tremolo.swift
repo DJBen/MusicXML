@@ -18,11 +18,7 @@
 public struct Tremolo {
     // MARK: - Instance Properties
 
-    // MARK: Value
-
-    public let marks: Int
-
-    // MARK: - One-off Attributes
+    // MARK: Attributes
 
     public let type: StartStopSingle?
     public let placement: AboveBelow?
@@ -30,6 +26,10 @@ public struct Tremolo {
     // MARK: Attribute Groups
 
     public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let marks: Int
 
     // MARK: - Initializers
 
@@ -48,12 +48,16 @@ public struct Tremolo {
 
 extension Tremolo: Equatable {}
 extension Tremolo: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case marks = ""
         case type
         case printStyle
         case placement
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -64,5 +68,20 @@ extension Tremolo: Codable {
         self.type = try container.decodeIfPresent(StartStopSingle.self, forKey: .type)
         // Decode attribute groups
         self.printStyle = try PrintStyle(from: decoder)
+    }
+}
+
+import XMLCoder
+extension Tremolo: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.type, CodingKeys.placement:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

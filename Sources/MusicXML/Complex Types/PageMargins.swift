@@ -8,11 +8,20 @@
 /// Page margins are specified either for both even and odd pages, or via separate odd and even page
 /// number values.
 public struct PageMargins {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: Kind?
+
+    // MARK: Elements
+
     public let left: Tenths
     public let right: Tenths
     public let top: Tenths
     public let bottom: Tenths
+
+    // MARK: - Initializers
 
     public init(type: Kind? = nil, left: Tenths, right: Tenths, top: Tenths, bottom: Tenths) {
         self.type = type
@@ -36,11 +45,25 @@ extension PageMargins.Kind: Codable {}
 
 extension PageMargins: Equatable {}
 extension PageMargins: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case type
         case left = "left-margin"
         case right = "right-margin"
         case top = "top-margin"
         case bottom = "bottom-margin"
+    }
+}
+
+import XMLCoder
+extension PageMargins: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.type:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

@@ -15,17 +15,20 @@ import XMLCoder
 public struct Metronome {
     // MARK: - Instance Properties
 
-    // MARK: Kind
+    // MARK: Attributes
 
-    public let kind: Kind
-
-    // MARK: - Attributes
-
-    public let printStyleAlign: PrintStyleAlign
     public let justify: Justify?
     /// The parentheses attribute indicates whether or not to put the metronome mark in parentheses;
     /// its value is no if not specified.
     public let parentheses: Bool?
+
+    // MARK: Attribute Groups
+
+    public let printStyleAlign: PrintStyleAlign
+
+    // MARK: Kind
+
+    public let kind: Kind
 
     // MARK: - Initializers
 
@@ -124,11 +127,15 @@ extension Metronome.Regular: Equatable {}
 
 extension Metronome.Complicated: Equatable {}
 extension Metronome.Complicated: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case metronomeNote = "metronome-note"
         case metronomeRelation = "metronome-relation"
         case otherMetronomeNote = "other-metronome-note"
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -142,6 +149,8 @@ extension Metronome.Kind: Equatable {}
 
 extension Metronome: Equatable {}
 extension Metronome: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case position
         case printStyleAlign = "print-style-align"
@@ -154,9 +163,13 @@ extension Metronome: Codable {
         case metronomeNote = "metronome-note"
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         fatalError("TODO")
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -211,3 +224,17 @@ extension MetronomeRegularComponent: Decodable {
 }
 
 extension MetronomeRegularComponent.CodingKeys: XMLChoiceCodingKey {}
+
+extension Metronome: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.justify, CodingKeys.parentheses:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

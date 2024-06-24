@@ -8,9 +8,21 @@
 /// The tuplet-type type indicates the graphical note type of the notes for this portion of the
 /// tuplet.
 public struct TupletType {
-    public let value: NoteTypeValue
-    public let font: Font
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let color: Color?
+
+    // MARK: Attribute Groups
+
+    public let font: Font
+
+    // MARK: Value
+
+    public let value: NoteTypeValue
+
+    // MARK: - Initializers
 
     public init(_ value: NoteTypeValue, font: Font = Font(), color: Color? = nil) {
         self.value = value
@@ -21,10 +33,14 @@ public struct TupletType {
 
 extension TupletType: Equatable {}
 extension TupletType: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case color
         case value = ""
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -32,6 +48,8 @@ extension TupletType: Codable {
         try font.encode(to: encoder)
         try container.encodeIfPresent(color, forKey: .color)
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

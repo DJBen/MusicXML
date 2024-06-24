@@ -11,10 +11,22 @@
 /// in specifying the degree. If the symbol attribute is present, the value of the text attribute
 /// follows the symbol.
 public struct DegreeValue {
-    public let value: Int
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let symbol: DegreeSymbolValue?
     public let text: String?
+
+    // MARK: Attribute Groups
+
     public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let value: Int
+
+    // MARK: - Initializers
 
     public init(
         _ value: Int,
@@ -31,11 +43,15 @@ public struct DegreeValue {
 
 extension DegreeValue: Equatable {}
 extension DegreeValue: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case symbol
         case text
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

@@ -33,6 +33,10 @@
 /// with a MusicXML opus. If a relative link is used within a document that is part of a compressed
 /// MusicXML file, the link is relative to the root folder of the zip file.
 public struct Link {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let name: String?
 
     // > The element attribute specifies an
@@ -51,6 +55,8 @@ public struct Link {
     //    in the context of the sibling element.
     public let position: String?
 
+    // MARK: - Initializers
+
     public init(name: String? = nil, element: String? = nil, position: String? = nil) {
         self.name = name
         self.element = element
@@ -60,3 +66,15 @@ public struct Link {
 
 extension Link: Equatable {}
 extension Link: Codable {}
+
+import XMLCoder
+extension Link: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.name, CodingKeys.element, CodingKeys.position:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

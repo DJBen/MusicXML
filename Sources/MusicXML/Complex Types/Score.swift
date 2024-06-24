@@ -28,13 +28,16 @@ public enum Score: Equatable {
     case timewise(Timewise)
 }
 
+// MARK: - Codable
+
 extension Score: Codable {
-    // MARK: - Codable
 
     enum CodingKeys: String, CodingKey {
         case partwise = "score-partwise"
         case timewise = "score-timewise"
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -46,14 +49,18 @@ extension Score: Codable {
         }
     }
 
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let codingKey = decoder.userInfo[CodingUserInfoKey(rawValue: Score.topLevelTagKey)!] as? CodingKeys {
             switch codingKey {
             case .partwise:
                 self = .partwise(try container.decode(Partwise.self))
+                print("\n\n\(Partwise.self) Decoded partwisely")
             case .timewise:
                 self = .timewise(try container.decode(Timewise.self))
+                print("\n\n\(Timewise.self) Decoded timewisely")
             }
         } else {
             // Fall back to try each top level tag

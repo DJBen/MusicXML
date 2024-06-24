@@ -7,15 +7,24 @@
 
 /// The tied type represents the notated tie. The tie element represents the tie sound.
 public struct Tied {
+    // MARK: - Instance Properties
+
+    // MARK: Attribute Groups
+
+    public var dashedFormatting: DashedFormatting
+    public var position: Position
+    public var bezier: Bezier
+
+    // MARK: Attributes
+
     public var type: StartStopContinue
     public var number: Int?
     public var lineType: LineType?
-    public var dashedFormatting: DashedFormatting
-    public var position: Position
     public var placement: AboveBelow?
     public var orientation: OverUnder?
-    public var bezier: Bezier
     public var color: Color?
+
+    // MARK: - Initializers
 
     public init(type: StartStopContinue, number: Int? = nil, lineType: LineType? = nil, dashedFormatting: DashedFormatting = DashedFormatting(), position: Position = Position(), placement: AboveBelow? = nil, orientation: OverUnder? = nil, bezier: Bezier = Bezier(), color: Color? = nil) {
         self.type = type
@@ -32,6 +41,8 @@ public struct Tied {
 
 extension Tied: Equatable {}
 extension Tied: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case number
@@ -40,6 +51,8 @@ extension Tied: Codable {
         case orientation
         case color
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -54,6 +67,8 @@ extension Tied: Codable {
         try container.encodeIfPresent(color, forKey: .color)
     }
 
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         type = try container.decode(StartStopContinue.self, forKey: .type)
@@ -65,5 +80,20 @@ extension Tied: Codable {
         orientation = try container.decodeIfPresent(OverUnder.self, forKey: .orientation)
         bezier = try Bezier(from: decoder)
         color = try container.decodeIfPresent(Color.self, forKey: .color)
+    }
+}
+
+import XMLCoder
+extension Tied: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.type, CodingKeys.number, CodingKeys.lineType, CodingKeys.placement, CodingKeys.orientation, CodingKeys.color:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

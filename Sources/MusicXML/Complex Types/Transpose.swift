@@ -8,10 +8,16 @@
 /// The transpose type represents what must be added to a written pitch to get a correct sounding
 /// pitch.
 public struct Transpose {
+    // MARK: - Instance Properties
+
+    // MAKR: Attributes
+
     /// The optional number attribute refers to staff numbers, from top to bottom on the system. If
     /// absent, the transposition applies to all staves in the part. Per-staff transposition is most
     /// often used in parts that represent multiple instruments.
     public let number: Int?
+
+    // MARK: Elements
 
     /// The diatonic element specifies the number of pitch steps needed to go from written to
     /// sounding pitch. This allows for correct spelling of enharmonic transpositions.
@@ -31,6 +37,8 @@ public struct Transpose {
     /// literature).
     public let double: Bool?
 
+    // MARK: - Initializers
+
     public init(number: Int? = nil, diatonic: Int? = nil, chromatic: Int, octaveChange: Int? = nil, double: Bool? = nil) {
         self.number = number
         self.diatonic = diatonic
@@ -42,3 +50,10 @@ public struct Transpose {
 
 extension Transpose: Equatable {}
 extension Transpose: Codable {}
+
+import XMLCoder
+extension Transpose: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
+    }
+}

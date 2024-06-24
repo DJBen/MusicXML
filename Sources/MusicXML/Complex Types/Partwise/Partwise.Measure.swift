@@ -103,9 +103,26 @@ extension Partwise.Measure: Codable {
         case musicData
     }
 
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         self.attributes = try MeasureAttributes(from: decoder)
         let container = try decoder.singleValueContainer()
         self.musicData = try container.decode([MusicData].self)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        try attributes.encode(to: encoder)
+        try musicData.forEach { try $0.encode(to: encoder) }
+    }
+}
+
+extension Partwise.Measure: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is MeasureAttributes.CodingKeys {
+            return .attribute
+        } else {
+            return .element
+        }
     }
 }

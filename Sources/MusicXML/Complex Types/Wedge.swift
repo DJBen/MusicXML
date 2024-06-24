@@ -8,6 +8,10 @@
 /// The wedge type represents crescendo and diminuendo wedge symbols. The line-type is solid by
 /// default.
 public struct Wedge {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     /// The type attribute is crescendo for the start of a wedge that is closed at the left side,
     /// and diminuendo for the start of a wedge that is closed on the right side.
     public let type: WedgeType
@@ -21,9 +25,14 @@ public struct Wedge {
     /// type is crescendo, or the type is stop for a wedge that began with a diminuendo type.
     public let niente: Bool?
     public let lineType: LineType?
+    public let color: Color?
+
+    // MARK: Attribute Groups
+
     public let dashedFormatting: DashedFormatting
     public let position: Position
-    public let color: Color?
+
+    // MARK: - Initializers
 
     public init(type: WedgeType, number: Int? = nil, spread: Tenths? = nil, niente: Bool? = nil, lineType: LineType? = nil, dashedFormatting: DashedFormatting = DashedFormatting(), position: Position = Position(), color: Color? = nil) {
         self.type = type
@@ -39,6 +48,8 @@ public struct Wedge {
 
 extension Wedge: Equatable {}
 extension Wedge: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case number
@@ -48,17 +59,21 @@ extension Wedge: Codable {
         case color
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(type, forKey: .type)
         try container.encodeIfPresent(number, forKey: .number)
         try container.encodeIfPresent(spread, forKey: .spread)
-        try container.encodeIfPresent(niente, forKey: .niente)
+        try container.encodeIfPresent(YesNo(niente), forKey: .niente)
         try container.encodeIfPresent(lineType, forKey: .lineType)
         try dashedFormatting.encode(to: encoder)
         try position.encode(to: encoder)
         try container.encodeIfPresent(color, forKey: .color)
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -70,5 +85,20 @@ extension Wedge: Codable {
         dashedFormatting = try DashedFormatting(from: decoder)
         position = try Position(from: decoder)
         color = try container.decodeIfPresent(Color.self, forKey: .color)
+    }
+}
+
+import XMLCoder
+extension Wedge: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.type, CodingKeys.number, CodingKeys.spread, CodingKeys.niente, CodingKeys.lineType, CodingKeys.color:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

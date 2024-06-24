@@ -7,15 +7,21 @@
 
 /// The defaults type specifies score-wide defaults for scaling, layout, and appearance.
 public struct Defaults {
+    // MARK: - Instance Properties
+
+    // MARK: Elements
+
     public let scaling: Scaling?
     public let pageLayout: PageLayout?
     public let systemLayout: SystemLayout?
     public let staffLayout: StaffLayout?
     public let appearance: Appearance?
+    public let lyricLanguages: [LyricLanguage]
     public let musicFont: Font?
     public let wordFont: Font?
     public let lyricFonts: [LyricFont]
-    public let lyricLanguages: [LyricLanguage]
+
+    // MARK: - Initializers
 
     public init(
         scaling: Scaling? = nil,
@@ -43,6 +49,8 @@ public struct Defaults {
 extension Defaults: Equatable {}
 
 extension Defaults: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case scaling
         case pageLayout = "page-layout"
@@ -53,5 +61,12 @@ extension Defaults: Codable {
         case wordFont = "word-font"
         case lyricFonts = "lyric-font"
         case lyricLanguages = "lyric-language"
+    }
+}
+
+import XMLCoder
+extension Defaults: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
     }
 }

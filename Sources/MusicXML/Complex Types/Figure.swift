@@ -7,6 +7,10 @@
 
 /// The figure type represents a single figure within a figured-bass element.
 public struct Figure {
+    // MARK: - Instance Properties
+
+    // MARK: Elements
+
     /// Values for prefix and suffix include plus and
     /// the accidental values sharp, flat, natural, double-sharp,
     /// flat-flat, and sharp-sharp.
@@ -25,6 +29,8 @@ public struct Figure {
     /// extensions.
     public let extend: Extend?
 
+    // MARK: - Initializers
+
     public init(prefix: StyleText? = nil, figureNumber: StyleText? = nil, suffix: StyleText? = nil, extend: Extend? = nil) {
         self.prefix = prefix
         self.figureNumber = figureNumber
@@ -35,10 +41,19 @@ public struct Figure {
 
 extension Figure: Equatable {}
 extension Figure: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case prefix
         case figureNumber = "figure-number"
         case suffix
         case extend
+    }
+}
+
+import XMLCoder
+extension Figure: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
     }
 }

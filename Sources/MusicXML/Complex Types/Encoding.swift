@@ -12,6 +12,20 @@ import XMLCoder
 /// and arrangement, but other types may be used. The type attribute is only needed when there are
 /// multiple encoder elements.
 public struct Encoding {
+    // MARK: - Instance Properties
+
+    // MARK: Elements
+
+    public let values: [Kind]
+
+    // MARK: - Initializers
+
+    public init(_ values: [Kind]) {
+        self.values = values
+    }
+}
+
+extension Encoding {
     public enum Kind {
         case encoder(String)
         case date(String)
@@ -19,16 +33,12 @@ public struct Encoding {
         case software(String)
         case supports(Supports)
     }
-
-    public let values: [Kind]
-
-    public init(_ values: [Kind]) {
-        self.values = values
-    }
 }
 
 extension Encoding.Kind: Equatable {}
 extension Encoding.Kind: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case encoder
         case date = "encoding-date"
@@ -36,6 +46,8 @@ extension Encoding.Kind: Codable {
         case software
         case supports
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -52,6 +64,8 @@ extension Encoding.Kind: Codable {
             try container.encode(value, forKey: .supports)
         }
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -87,8 +101,18 @@ extension Encoding.Kind.CodingKeys: XMLChoiceCodingKey {}
 extension Encoding: Equatable {}
 
 extension Encoding: Codable {
+    // MARK: - Codable
+
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         self.values = try container.decode([Kind].self)
+    }
+}
+
+extension Encoding: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
     }
 }

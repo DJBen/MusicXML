@@ -9,8 +9,14 @@
 /// "start" for the lowest pitched string (e.g., the string with the highest MusicXML number) and is
 /// "stop" for the highest pitched string.
 public struct Barre {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: StartStop
     public let color: Color
+
+    // MARK: - Initializers
 
     public init(type: StartStop, color: Color) {
         self.type = type
@@ -20,3 +26,15 @@ public struct Barre {
 
 extension Barre: Equatable {}
 extension Barre: Codable {}
+
+import XMLCoder
+extension Barre: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.type, CodingKeys.color:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

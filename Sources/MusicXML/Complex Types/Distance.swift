@@ -7,8 +7,17 @@
 
 /// The distance element represents standard distances between notation elements in tenths.
 public struct Distance {
-    public let value: Tenths
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: DistanceType
+
+    // MARK: Value
+
+    public let value: Tenths
+
+    // MARK: - Initializers
 
     public init(_ value: Tenths, type: DistanceType) {
         self.value = value
@@ -18,6 +27,8 @@ public struct Distance {
 
 extension Distance: Equatable {}
 extension Distance: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case value = ""

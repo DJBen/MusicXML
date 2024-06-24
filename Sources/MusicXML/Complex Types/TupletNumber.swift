@@ -7,9 +7,21 @@
 
 /// The tuplet-number type indicates the number of notes for this portion of the tuplet.
 public struct TupletNumber {
-    public let value: Int
-    public let font: Font
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let color: Color?
+
+    // MARK: Attribute Groups
+
+    public let font: Font
+
+    // MARK: Value
+
+    public let value: Int
+
+    // MARK: - Initializers
 
     public init(_ value: Int, font: Font = Font(), color: Color? = nil) {
         self.value = value
@@ -20,10 +32,14 @@ public struct TupletNumber {
 
 extension TupletNumber: Equatable {}
 extension TupletNumber: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case color
         case value = ""
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -31,6 +47,8 @@ extension TupletNumber: Codable {
         font = try Font(from: decoder)
         color = try container.decodeIfPresent(Color.self, forKey: .color)
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

@@ -7,8 +7,15 @@
 
 /// The string-mute type represents string mute on and mute off symbols.
 public struct StringMute {
+    // MARK: - Instance Properties
+
     public let type: OnOff
+
+    // MARK: Attribute Groups
+
     public let printStyleAlign: PrintStyleAlign
+
+    // MARK: - Initializers
 
     public init(type: OnOff, printStyleAlign: PrintStyleAlign = PrintStyleAlign()) {
         self.type = type
@@ -18,9 +25,13 @@ public struct StringMute {
 
 extension StringMute: Equatable {}
 extension StringMute: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -28,9 +39,21 @@ extension StringMute: Codable {
         try printStyleAlign.encode(to: encoder)
     }
 
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         type = try container.decode(OnOff.self, forKey: .type)
         printStyleAlign = try PrintStyleAlign(from: decoder)
+    }
+}
+
+import XMLCoder
+extension StringMute: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        return .element
     }
 }

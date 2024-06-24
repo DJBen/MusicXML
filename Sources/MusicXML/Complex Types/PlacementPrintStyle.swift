@@ -9,7 +9,7 @@
 public struct PlacementPrintStyle {
     // MARK: - Instance Properties
 
-    // MARK: One-off Attributes
+    // MARK: Attributes
 
     public var placement: AboveBelow?
 
@@ -17,6 +17,8 @@ public struct PlacementPrintStyle {
 
     public var position: Position
     public var printStyle: PrintStyle
+
+    // MARK: - Initializers
 
     public init(
         position: Position = Position(),
@@ -31,6 +33,14 @@ public struct PlacementPrintStyle {
 
 extension PlacementPrintStyle: Equatable {}
 extension PlacementPrintStyle: Codable {
+    // MARK: - Codable
+
+    internal enum CodingKeys: String, CodingKey {
+        case placement
+    }
+
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         // Decode attribute groups
         self.position = try Position(from: decoder)
@@ -38,5 +48,22 @@ extension PlacementPrintStyle: Codable {
         // Decode one-off attribute
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.placement = try container.decodeIfPresent(AboveBelow.self, forKey: .placement)
+    }
+}
+
+extension PlacementPrintStyle.CodingKeys: XMLAttributeGroupCodingKey {}
+
+import XMLCoder
+extension PlacementPrintStyle: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.placement:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

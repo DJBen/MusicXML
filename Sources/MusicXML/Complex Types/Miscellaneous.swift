@@ -9,7 +9,13 @@
 /// miscellaneous element. The miscellaneous type puts each separate part of metadata into its own
 /// miscellaneous-field type.
 public struct Miscellaneous {
+    // MARK: - Instance Properties
+
+    // MARK: ELements
+
     public let fields: [MiscellaneousField]
+
+    // MARK: - Initializers
 
     public init(fields: [MiscellaneousField]) {
         self.fields = fields
@@ -18,7 +24,16 @@ public struct Miscellaneous {
 
 extension Miscellaneous: Equatable {}
 extension Miscellaneous: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case fields = "miscellaneous-field"
+    }
+}
+
+import XMLCoder
+extension Miscellaneous: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
     }
 }

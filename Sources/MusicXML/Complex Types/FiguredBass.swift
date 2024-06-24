@@ -17,7 +17,7 @@ public struct FiguredBass {
     public let printStyle: PrintStyle
     public let printout: Printout
 
-    // MARK: Attributes
+    // MARK: Elements
 
     // > The value of parentheses is "no" if not present.
     public let parentheses: Bool?
@@ -38,6 +38,8 @@ public struct FiguredBass {
 
     /// The level type is used to specify editorial information for different MusicXML elements.
     public let level: Level?
+
+    // MARK: - Initializers
 
     public init(
         _ figures: [Figure],
@@ -60,6 +62,8 @@ public struct FiguredBass {
 
 extension FiguredBass: Equatable {}
 extension FiguredBass: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case figures = "figure"
         case duration
@@ -67,6 +71,8 @@ extension FiguredBass: Codable {
         case level
         case parentheses
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         // Decode attribute groups
@@ -82,14 +88,26 @@ extension FiguredBass: Codable {
         self.figures = try container.decode([Figure].self, forKey: .figures)
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try printStyle.encode(to: encoder)
         try printout.encode(to: encoder)
-        try container.encodeIfPresent(parentheses, forKey: .parentheses)
+        try container.encodeIfPresent(YesNo(parentheses), forKey: .parentheses)
         try container.encode(figures, forKey: .figures)
         try container.encodeIfPresent(duration, forKey: .duration)
         try container.encodeIfPresent(footnote, forKey: .footnote)
         try container.encodeIfPresent(level, forKey: .level)
+    }
+}
+
+import XMLCoder
+extension FiguredBass: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        return .element
     }
 }

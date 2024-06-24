@@ -13,10 +13,16 @@
 /// By default, all these attributes are set to yes. If print-object is set to no, the print-dot and
 /// print-lyric attributes are interpreted to also be set to no if they are not present.
 public struct Printout {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let printObject: Bool?
     public let printDot: Bool?
     public let printSpacing: Bool?
     public let printLyric: Bool?
+
+    // MARK: - Initializers
 
     public init(
         printObject: Bool? = nil,
@@ -32,4 +38,27 @@ public struct Printout {
 }
 
 extension Printout: Equatable {}
-extension Printout: Codable {}
+extension Printout: Codable {
+    // MARK: - Codable
+
+    internal enum CodingKeys: String, CodingKey {
+        case printObject = "print-object"
+        case printDot = "print-dot"
+        case printSpacing = "print-spacing"
+        case printLyric = "print-lyric"
+    }
+}
+
+extension Printout.CodingKeys: XMLAttributeGroupCodingKey {}
+
+import XMLCoder
+extension Printout: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.printObject, CodingKeys.printDot, CodingKeys.printSpacing, CodingKeys.printLyric:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

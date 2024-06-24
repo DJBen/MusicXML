@@ -40,11 +40,15 @@ public struct AccordionRegistration {
 
 extension AccordionRegistration: Equatable {}
 extension AccordionRegistration: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case high = "accordion-high"
         case middle = "accordion-middle"
         case low = "accordion-low"
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         self.printStyleAlign = try PrintStyleAlign(from: decoder)
@@ -54,11 +58,23 @@ extension AccordionRegistration: Codable {
         self.middle = try container.decodeIfPresent(AccordionMiddle.self, forKey: .middle)
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         try printStyleAlign.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
         if high { try container.encode(Empty(), forKey: .high) }
         if low { try container.encode(Empty(), forKey: .low) }
         try container.encodeIfPresent(middle, forKey: .middle)
+    }
+}
+
+import XMLCoder
+extension AccordionRegistration: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        return .element
     }
 }

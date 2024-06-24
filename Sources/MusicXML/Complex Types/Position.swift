@@ -58,10 +58,16 @@
 /// As elsewhere in the MusicXML format, tenths are the global tenths defined by the scaling
 /// element, not the local tenths of a staff resized by the staff-size element.
 public struct Position {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let defaultX: Tenths?
     public let defaultY: Tenths?
     public let relativeX: Tenths?
     public let relativeY: Tenths?
+
+    // MARK: - Initializers
 
     public init(
         defaultX: Tenths? = nil,
@@ -76,14 +82,19 @@ public struct Position {
     }
 }
 
-extension Position: Equatable {}
+extension Position: Equatable { }
+
 extension Position: Codable {
-    enum CodingKeys: String, CodingKey {
+    // MARK: - Codable
+
+    internal enum CodingKeys: String, CodingKey, XMLChoiceCodingKey {
         case defaultX = "default-x"
         case defaultY = "default-y"
         case relativeX = "relative-x"
         case relativeY = "relative-y"
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -91,5 +102,19 @@ extension Position: Codable {
         defaultY = try container.decodeIfPresent(Tenths.self, forKey: .defaultY)
         relativeX = try container.decodeIfPresent(Tenths.self, forKey: .relativeX)
         relativeY = try container.decodeIfPresent(Tenths.self, forKey: .relativeY)
+    }
+}
+
+extension Position.CodingKeys: XMLAttributeGroupCodingKey {}
+
+import XMLCoder
+extension Position: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.defaultX, CodingKeys.defaultY, CodingKeys.relativeX, CodingKeys.relativeY:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

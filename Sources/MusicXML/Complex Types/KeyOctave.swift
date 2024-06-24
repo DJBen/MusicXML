@@ -9,12 +9,9 @@ import XMLCoder
 
 /// The key-octave element specifies in which octave an element of a key signature appears.
 public struct KeyOctave {
-    // MARK: - Value
+    // MARK: - Instance Properties
 
-    /// The content specifies the octave value using the same values as the display-octave element.
-    public let value: Int
-
-    // MARK: - Attributes
+    // MARK: Attributes
 
     /// The number attribute is a positive integer that refers to the key signature element in
     /// left-to-right order.
@@ -22,9 +19,12 @@ public struct KeyOctave {
     /// If the cancel attribute is set to yes, then this number refers to an element specified by
     /// the cancel element. It is no by default.
     public let cancel: Bool
-}
 
-extension KeyOctave {
+    // MARK: Value
+
+    /// The content specifies the octave value using the same values as the display-octave element.
+    public let value: Int
+
     // MARK: - Initializers
 
     public init(_ value: Int, number: Int, cancel: Bool = false) {
@@ -36,11 +36,15 @@ extension KeyOctave {
 
 extension KeyOctave: Equatable {}
 extension KeyOctave: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case number
         case cancel
         case value = ""
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -48,6 +52,8 @@ extension KeyOctave: Codable {
         self.number = try container.decode(Int.self, forKey: .number)
         self.cancel = try container.decodeIfPresent(Bool.self, forKey: .cancel) ?? false
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

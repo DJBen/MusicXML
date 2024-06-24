@@ -11,17 +11,17 @@ extension MusicXML {
     public struct String {
         // MARK: - Instance Properties
 
-        // MARK: Value
-
-        public let value: Int
-
-        // MARK: One-off Attributes
+        // MARK: Attributes
 
         public let placement: AboveBelow?
 
         // MARK: Attribute Groups
 
         public let printStyle: PrintStyle
+
+        // MARK: Value
+
+        public let value: Int
 
         // MARK: - Initializers
 
@@ -39,10 +39,14 @@ extension MusicXML {
 
 extension MusicXML.String: Equatable {}
 extension MusicXML.String: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case placement
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         // Decode attribute groups
@@ -57,6 +61,8 @@ extension MusicXML.String: Codable {
             self.value = 1
         }
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

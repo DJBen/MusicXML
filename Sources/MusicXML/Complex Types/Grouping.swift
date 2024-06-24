@@ -11,12 +11,21 @@
 /// analyses. Future versions of the MusicXML format may add elements that can represent more
 /// standardized categories of analysis data, allowing for easier data sharing.
 public struct Grouping {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: StartStopSingle
-    public let feature: [Feature] // NonEmpty
     /// The number attribute is used for distinguishing between overlapping and hierarchical
     /// groupings.
     public let number: Int?
     public let memberOf: String?
+
+    // MARK: Elements
+
+    public let feature: [Feature]
+
+    // MARK: - Initializers
 
     public init(type: StartStopSingle, feature: [Feature], number: Int? = nil, memberOf: String? = nil) {
         self.type = type
@@ -28,3 +37,15 @@ public struct Grouping {
 
 extension Grouping: Equatable {}
 extension Grouping: Codable {}
+
+import XMLCoder
+extension Grouping: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.type, CodingKeys.number, CodingKeys.memberOf:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

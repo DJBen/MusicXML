@@ -14,23 +14,20 @@
 public struct Degree {
     // MARK: - Instance Properties
 
-    // MARK: Value
-
-    public let value: DegreeValue
-
     // MARK: Attributes
 
     public let printObject: Bool?
 
     // MARK: Elements
 
+    public let value: DegreeValue
     public let alter: DegreeAlter
     public let type: DegreeType
 
     // MARK: - Initializers
 
     public init(
-        _ value: DegreeValue,
+        value: DegreeValue,
         alter: DegreeAlter,
         type: DegreeType,
         printObject: Bool? = nil
@@ -45,10 +42,24 @@ public struct Degree {
 extension Degree: Equatable {}
 
 extension Degree: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case printObject = "print-object"
         case value = "degree-value"
         case type = "degree-type"
         case alter = "degree-alter"
+    }
+}
+
+import XMLCoder
+extension Degree: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.printObject:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

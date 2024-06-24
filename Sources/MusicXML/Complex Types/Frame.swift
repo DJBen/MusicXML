@@ -8,7 +8,10 @@
 /// The frame type represents a frame or fretboard diagram used together with a chord symbol. The
 /// representation is based on the NIFF guitar grid with additional information.
 public struct Frame {
-    public let position: Position
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let color: Color?
     public let hAlign: LeftCenterRight?
     public let vAlign: VAlignImage?
@@ -18,6 +21,12 @@ public struct Frame {
     /// associated frame-note element. Typical values are x and the empty string. If the attribute
     /// is not present, the display of the unplayed string is application-defined.
     public let unplayed: String?
+
+    // MARK: Attribute Groups
+
+    public let position: Position
+
+    // MARK: Elements
 
     /// The frame-strings element gives the overall size of the frame in vertical lines (strings).
     public let frameStrings: Int
@@ -29,6 +38,8 @@ public struct Frame {
     /// The frame-note type represents each note included in the frame. An open string will have a
     /// fret value of 0, while a muted string will not be associated with a frame-note element.
     public let frameNotes: [FrameNote]
+
+    // MARK: - Initializers
 
     public init(
         position: Position = Position(),
@@ -59,6 +70,8 @@ public struct Frame {
 
 extension Frame: Equatable {}
 extension Frame: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case position
         case color
@@ -73,6 +86,8 @@ extension Frame: Codable {
         case frameNotes = "frame-note"
         case firstFret = "first-fret"
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         // Decdode attribute groups
@@ -90,5 +105,20 @@ extension Frame: Codable {
         self.frameFrets = try container.decode(Int.self, forKey: .frameFrets)
         self.firstFret = try container.decodeIfPresent(FirstFret.self, forKey: .firstFret)
         self.frameNotes = try container.decode([FrameNote].self, forKey: .frameNotes)
+    }
+}
+
+import XMLCoder
+extension Frame: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.color, CodingKeys.hAlign, CodingKeys.vAlign, CodingKeys.height, CodingKeys.width, CodingKeys.unplayed:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

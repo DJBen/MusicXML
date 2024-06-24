@@ -24,12 +24,12 @@ public struct Dynamics {
 
     public let values: [Dynamic]
 
-    // MARK: Attributes Groups
+    // MARK: Attribute Groups
 
     public let printStyleAlign: PrintStyleAlign
     public let textDecoration: TextDecoration
 
-    // MARK: One-off Attributes
+    // MARK: Attributes
 
     public let placement: AboveBelow?
     public let enclosure: EnclosureShape?
@@ -55,6 +55,10 @@ extension Dynamics {
 
 extension Dynamics: Equatable {}
 extension Dynamics: Codable {
+    // MARK: - Codable
+
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         // Decode values
         self.values = try decoder.collectArray()
@@ -67,5 +71,20 @@ extension Dynamics: Codable {
         let attributesContainer = try decoder.container(keyedBy: CodingKeys.self)
         self.placement = try attributesContainer.decodeIfPresent(AboveBelow.self, forKey: .placement)
         self.enclosure = try attributesContainer.decodeIfPresent(EnclosureShape.self, forKey: .enclosure)
+    }
+}
+
+import XMLCoder
+extension Dynamics: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.placement, CodingKeys.enclosure:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

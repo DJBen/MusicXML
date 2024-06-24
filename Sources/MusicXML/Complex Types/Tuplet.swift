@@ -14,7 +14,9 @@
 /// than the time-modification element, and is needed to represent nested tuplets and other complex
 /// tuplets accurately.
 public struct Tuplet {
-    // MARK: - Attributes
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
 
     public var type: StartStop
     /// The number attribute is used to distinguish nested tuplets.
@@ -30,13 +32,18 @@ public struct Tuplet {
     public var showType: ShowTuplet?
     /// The line-shape attribute distinguishes between straight and curved lines.
     public var lineShape: LineShape?
-    public var position: Position?
     public var placement: AboveBelow?
 
-    // MARK: - Elements
+    // MARK: Attribute Groups
+
+    public var position: Position?
+
+    // MARK: Elements
 
     public var actualNotes: TupletPortion?
     public var normalNotes: TupletPortion?
+
+    // MARK: - Initializers
 
     public init(type: StartStop, number: Int? = nil, bracket: Bool? = nil, showNumber: ShowTuplet? = nil, showType: ShowTuplet? = nil, lineShape: LineShape? = nil, position: Position? = nil, placement: AboveBelow? = nil, actualNotes: TupletPortion? = nil, normalNotes: TupletPortion? = nil) {
         self.type = type
@@ -54,6 +61,8 @@ public struct Tuplet {
 
 extension Tuplet: Equatable {}
 extension Tuplet: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case number
@@ -65,5 +74,20 @@ extension Tuplet: Codable {
         case placement
         case actualNotes = "actual-notes"
         case normalNotes = "normal-notes"
+    }
+}
+
+import XMLCoder
+extension Tuplet: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.type, CodingKeys.number, CodingKeys.bracket, CodingKeys.showNumber, CodingKeys.showType, CodingKeys.lineShape, CodingKeys.placement:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

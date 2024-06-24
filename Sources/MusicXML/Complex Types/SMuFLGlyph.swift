@@ -13,7 +13,11 @@
 //
 // <!ENTITY % smufl-glyph-name "NMTOKEN">
 public struct SMuFLGlyph {
+    // MARK: - Instance Properties
+
     public let name: String
+
+    // MARK: - Initializers
 
     public init(name: String) {
         self.name = name
@@ -22,3 +26,10 @@ public struct SMuFLGlyph {
 
 extension SMuFLGlyph: Equatable {}
 extension SMuFLGlyph: Codable {}
+
+import XMLCoder
+extension SMuFLGlyph: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
+    }
+}

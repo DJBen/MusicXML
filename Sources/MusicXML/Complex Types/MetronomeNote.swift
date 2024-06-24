@@ -9,6 +9,8 @@
 public struct MetronomeNote {
     // MARK: - Instance Properties
 
+    // MARK: Elements
+
     public let metronomeType: NoteTypeValue
     public let metronomeDotCount: Int
     public let metronomeBeams: [MetronomeBeam]
@@ -31,6 +33,8 @@ public struct MetronomeNote {
 
 extension MetronomeNote: Equatable {}
 extension MetronomeNote: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case metronomeType = "metronome-type"
         case metronomeDotCount = "metronome-dot"
@@ -38,11 +42,20 @@ extension MetronomeNote: Codable {
         case metronomeTuplet = "metronome-tuplet"
     }
 
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.metronomeType = try container.decode(NoteTypeValue.self, forKey: .metronomeType)
         self.metronomeDotCount = try container.decode([Empty].self, forKey: .metronomeDotCount).count
         self.metronomeBeams = try container.decode([MetronomeBeam].self, forKey: .metronomeBeams)
         self.metronomeTuplet = try container.decodeIfPresent(MetronomeTuplet.self, forKey: .metronomeTuplet)
+    }
+}
+
+import XMLCoder
+extension MetronomeNote: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
     }
 }

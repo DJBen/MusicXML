@@ -10,11 +10,7 @@
 /// root-alter information. In that case, the print-object attribute of the root-alter element can
 /// be set to no.
 public struct RootAlter {
-    // MARK: - Instance Propertes
-
-    // MARK: Value
-
-    public let value: Double
+    // MARK: - Instance Properties
 
     // MARK: Attributes
 
@@ -24,6 +20,10 @@ public struct RootAlter {
     // MARK: Attribute Groups
 
     public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let value: Double
 
     // MARK: - Initializers
 
@@ -42,11 +42,15 @@ public struct RootAlter {
 
 extension RootAlter: Equatable {}
 extension RootAlter: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case printObject = "print-object"
         case location
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -54,6 +58,16 @@ extension RootAlter: Codable {
         self.printObject = try container.decodeIfPresent(Bool.self, forKey: .printObject)
         self.printStyle = try PrintStyle(from: decoder)
         self.location = try container.decodeIfPresent(LeftRight.self, forKey: .location)
+    }
+
+    // MARK: Encodable
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(value, forKey: .value)
+        try container.encodeIfPresent(YesNo(printObject), forKey: .printObject)
+        try container.encodeIfPresent(location, forKey: .location)
+        try printStyle.encode(to: encoder)
     }
 }
 

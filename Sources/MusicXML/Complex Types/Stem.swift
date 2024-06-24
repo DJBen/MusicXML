@@ -13,12 +13,18 @@
 public struct Stem {
     // MARK: - Instance Properties
 
-    public let value: StemValue
-    public let position: Position
-    public let color: Color?
-}
+    // MARK: Attributes
 
-extension Stem {
+    public let color: Color?
+
+    // MARK: Attribute Groups
+
+    public let position: Position
+
+    // MARK: Value
+
+    public let value: StemValue
+
     // MARK: Initializers
 
     public init(_ value: StemValue, position: Position = Position(), color: Color? = nil) {
@@ -39,10 +45,14 @@ extension Stem {
 
 extension Stem: Equatable {}
 extension Stem: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case color
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -50,6 +60,8 @@ extension Stem: Codable {
         self.position = try Position(from: decoder)
         self.color = try container.decodeIfPresent(Color.self, forKey: .color)
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

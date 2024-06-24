@@ -27,6 +27,10 @@
 /// elements allow for fermatas on both sides of the barline (the lower one inverted). If no
 /// location is specified, the right barline is the default.
 public struct Barline {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     /// Barlines have a location attribute to make it easier to process barlines independently of
     /// the other musical data in a score. It is often easier to set up measures separately from
     /// entering notes. The location attribute must match where the barline element occurs within
@@ -38,15 +42,17 @@ public struct Barline {
 
     /// The segno attribute works the same way as the one in the sound element. It is used for
     /// playback when barline elements contain a segno element.
-    public var segno: PrintStyleAlign?
+    public var segno: String?
 
     /// The coda attribute works the same way as the one in the sound element. It is used for
     /// playback when a barline element contains a coda child element.
-    public var coda: PrintStyleAlign?
+    public var coda: String?
 
     /// The divisions attribute works the same way as the one in the sound element. It is used for
     /// playback when a barline element contains a divisions element.
     public var divisions: Int?
+
+    // MARK: Elements
 
     /// The bar-style type represents barline style information. Choices are regular, dotted,
     /// dashed, heavy, light-light, light-heavy, heavy-light, heavy-heavy, tick (a short stroke
@@ -55,14 +61,17 @@ public struct Barline {
 
     public var editorial: Editorial?
     public var wavyLine: WavyLine?
+    // FIXME: add segno and coda elements
     public var fermata: Fermata?
     public var ending: Ending?
     public var `repeat`: Repeat?
 
+    // MARK: - Initializers
+
     public init(
         location: RightLeftMiddle? = nil,
-        segno: PrintStyleAlign? = nil,
-        coda: PrintStyleAlign? = nil,
+        segno: String? = nil,
+        coda: String? = nil,
         divisions: Int? = nil,
         barStyle: BarStyleColor? = nil,
         editorial: Editorial? = nil,
@@ -86,6 +95,8 @@ public struct Barline {
 
 extension Barline: Equatable {}
 extension Barline: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case location
         case barStyle = "bar-style"
@@ -97,5 +108,17 @@ extension Barline: Codable {
         case ending
         case `repeat`
         case divisions
+    }
+}
+
+import XMLCoder
+extension Barline: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.location, CodingKeys.segno, CodingKeys.coda, CodingKeys.divisions:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

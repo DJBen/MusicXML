@@ -12,9 +12,21 @@ import XMLCoder
 /// and 223. Some values are added to these based on how usage has evolved in the 30 years since
 /// Stone's book was published.
 public struct Percussion {
-    public let printStyleAlign: PrintStyleAlign
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let enclosure: EnclosureShape?
+
+    // MARK: Attribute Groups
+
+    public let printStyleAlign: PrintStyleAlign
+
+    // MARK: Kind
+
     public let kind: Kind
+
+    // MARK: - Initializers
 
     public init(printStyleAlign: PrintStyleAlign = PrintStyleAlign(), enclosure: EnclosureShape? = nil, kind: Kind) {
         self.printStyleAlign = printStyleAlign
@@ -41,6 +53,8 @@ extension Percussion {
 
 extension Percussion.Kind: Equatable {}
 extension Percussion.Kind: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case beater
         case effect
@@ -54,6 +68,8 @@ extension Percussion.Kind: Codable {
         case timpani
         case wood
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -82,6 +98,8 @@ extension Percussion.Kind: Codable {
             try container.encode(value, forKey: .wood)
         }
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -128,10 +146,14 @@ extension Percussion.Kind.CodingKeys: XMLChoiceCodingKey {}
 
 extension Percussion: Equatable {}
 extension Percussion: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case enclosure
         case kind
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -140,10 +162,26 @@ extension Percussion: Codable {
         try container.encode(kind, forKey: .kind)
     }
 
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         printStyleAlign = try PrintStyleAlign(from: decoder)
         enclosure = try container.decodeIfPresent(EnclosureShape.self, forKey: .enclosure)
         kind = try container.decode(Kind.self, forKey: .kind)
+    }
+}
+
+extension Percussion: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.enclosure:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

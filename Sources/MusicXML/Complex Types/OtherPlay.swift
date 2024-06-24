@@ -8,8 +8,17 @@
 /// The other-play element represents other types of playback. The required type attribute indicates
 /// the type of playback to which the element content applies.
 public struct OtherPlay {
-    public let value: String
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: String
+
+    // MARK: Value
+
+    public let value: String
+
+    // MARK: - Initializers
 
     public init(_ value: String, type: String) {
         self.value = value
@@ -19,6 +28,8 @@ public struct OtherPlay {
 
 extension OtherPlay: Equatable {}
 extension OtherPlay: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case value = ""

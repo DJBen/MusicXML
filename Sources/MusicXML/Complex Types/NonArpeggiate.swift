@@ -9,13 +9,20 @@
 /// to not arpeggiate these notes. Since this does not involve playback, it is only used on the top
 /// or bottom notes, not on each note as for the arpeggiate type.
 public struct NonArpeggiate {
-    // MARK: - Attributes
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
 
     public var type: TopBottom
     public var number: Int?
-    public var position: Position
     public var placement: AboveBelow?
     public var color: Color?
+
+    // MARK: Attribute Groups
+
+    public var position: Position
+
+    // MARK: - Initializers
 
     public init(type: TopBottom, number: Int? = nil, position: Position = Position(), placement: AboveBelow? = nil, color: Color? = nil) {
         self.type = type
@@ -28,12 +35,16 @@ public struct NonArpeggiate {
 
 extension NonArpeggiate: Equatable {}
 extension NonArpeggiate: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case number
         case placement
         case color
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -44,6 +55,8 @@ extension NonArpeggiate: Codable {
         try container.encodeIfPresent(color, forKey: .color)
     }
 
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         type = try container.decode(TopBottom.self, forKey: .type)
@@ -51,5 +64,20 @@ extension NonArpeggiate: Codable {
         position = try Position(from: decoder)
         placement = try container.decodeIfPresent(AboveBelow.self, forKey: .placement)
         color = try container.decodeIfPresent(Color.self, forKey: .color)
+    }
+}
+
+import XMLCoder
+extension NonArpeggiate: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.type, CodingKeys.number, CodingKeys.placement, CodingKeys.color:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

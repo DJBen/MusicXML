@@ -8,14 +8,21 @@
 /// The fermata text content represents the shape of the fermata sign. An empty fermata element
 /// represents a normal fermata. The fermata type is upright if not specified.
 public struct Fermata {
-    // MARK: - Value
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
+    public var type: UprightInverted?
+
+    // MARK: Attribute Groups
+
+    public var printStyle: PrintStyle
+
+    // MARK: Value
 
     public var value: FermataShape
 
-    // MARK: - Attributes
-
-    public var type: UprightInverted?
-    public var printStyle: PrintStyle
+    // MARK: - Initializers
 
     public init(_ value: FermataShape, type: UprightInverted? = nil, printStyle: PrintStyle = PrintStyle()) {
         self.value = value
@@ -26,10 +33,14 @@ public struct Fermata {
 
 extension Fermata: Equatable {}
 extension Fermata: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case value = ""
         case type
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

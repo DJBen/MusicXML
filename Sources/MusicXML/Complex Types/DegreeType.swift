@@ -10,11 +10,7 @@
 /// interpretation of the value of the degree-alter element. The text attribute specifies how the
 /// type of the degree should be displayed in a score.
 public struct DegreeType {
-    // MARK: - Instance Propertie
-
-    // MARK: Value
-
-    let value: DegreeTypeValue
+    // MARK: - Instance Properties
 
     // MARK: Attributes
 
@@ -23,6 +19,10 @@ public struct DegreeType {
     // MARK: Attribute Groups
 
     let printStyle: PrintStyle
+
+    // MARK: Value
+
+    let value: DegreeTypeValue
 
     // MARK: - Initializers
 
@@ -47,10 +47,14 @@ extension DegreeType {
 
 extension DegreeType: Equatable {}
 extension DegreeType: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case text
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

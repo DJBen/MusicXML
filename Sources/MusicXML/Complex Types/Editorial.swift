@@ -11,8 +11,12 @@
 //
 // <!ENTITY % editorial "(footnote?, level?)">
 public struct Editorial {
+    // MARK: - Instance Properties
+
     public let footnote: FormattedText?
     public let level: Level?
+
+    // MARK: - Initializers
 
     public init(footnote: FormattedText? = nil, level: Level? = nil) {
         self.footnote = footnote
@@ -22,3 +26,10 @@ public struct Editorial {
 
 extension Editorial: Equatable {}
 extension Editorial: Codable {}
+
+import XMLCoder
+extension Editorial: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
+    }
+}

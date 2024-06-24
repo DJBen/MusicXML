@@ -14,11 +14,13 @@ public struct Accord {
 
     public let string: Int
 
-    // MARK: - Elements
+    // MARK: Elements
 
     public let tuningStep: Step
     public let tuningAlter: Double?
     public let tuningOctave: Int?
+
+    // MARK: - Initializers
 
     public init(
         string: Int,
@@ -35,10 +37,24 @@ public struct Accord {
 
 extension Accord: Equatable {}
 extension Accord: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case string
         case tuningStep = "tuning-step"
         case tuningAlter = "tuning-alter"
         case tuningOctave = "tuning-octave"
+    }
+}
+
+import XMLCoder
+extension Accord: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.string:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

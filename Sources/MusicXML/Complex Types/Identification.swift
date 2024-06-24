@@ -9,6 +9,10 @@
 /// headers that may apply at a score-wide, movement-wide, or part-wide level. The creator, rights,
 /// source, and relation elements are based on Dublin Core.
 public struct Identification {
+    // MARK: - Instance Properties
+
+    // MARK: Elements
+
     /// The creator element is borrowed from Dublin Core. It is used for the creators of the score.
     /// The type attribute is used to distinguish different creative contributions. Thus, there can
     /// be multiple creators within an identification. Standard type values are composer, lyricist,
@@ -38,6 +42,8 @@ public struct Identification {
     /// own miscellaneous-field type.
     public var miscellaneous: Miscellaneous?
 
+    // MARK: - Initializers
+
     public init(creators: [Creator]? = nil, rights: [Rights]? = nil, encoding: Encoding? = nil, source: String? = nil, relation: [String]? = nil, miscellaneous: Miscellaneous? = nil) {
         self.creators = creators
         self.rights = rights
@@ -50,6 +56,8 @@ public struct Identification {
 
 extension Identification: Equatable {}
 extension Identification: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case creators = "creator"
         case rights
@@ -57,5 +65,12 @@ extension Identification: Codable {
         case source
         case relation
         case miscellaneous
+    }
+}
+
+import XMLCoder
+extension Identification: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
     }
 }

@@ -9,10 +9,22 @@ import XMLCoder
 
 /// The arrow element represents an arrow used for a musical technical indication.
 public struct Arrow {
-    public let kind: Kind
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
+    public let placement: AboveBelow?
+
+    // MARK: Attribute Groups
+
     public let position: Position
     public let printStyle: PrintStyle
-    public let placement: AboveBelow?
+
+    // MARK: Kind
+
+    public let kind: Kind
+
+    // MARK: - Initializers
 
     public init(kind: Kind, position: Position = Position(), printStyle: PrintStyle = PrintStyle(), placement: AboveBelow? = nil) {
         self.kind = kind
@@ -23,17 +35,6 @@ public struct Arrow {
 }
 
 extension Arrow {
-    // MARK: - Nested Types
-
-    public enum Kind {
-        case circular(CircularArrow)
-        case linear(LinearArrow)
-    }
-}
-
-extension Arrow {
-    // MARK: - Initializers
-
     /// Create a circular `Arrow`.
     public init(
         direction: CircularArrow,
@@ -62,11 +63,24 @@ extension Arrow {
     }
 }
 
+extension Arrow {
+    // MARK: - Nested Types
+
+    public enum Kind {
+        case circular(CircularArrow)
+        case linear(LinearArrow)
+    }
+}
+
 extension Arrow.Kind: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case circular
         case linear
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -77,6 +91,8 @@ extension Arrow.Kind: Codable {
             try container.encode(value, forKey: .linear)
         }
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -106,10 +122,14 @@ extension Arrow.Kind.CodingKeys: XMLChoiceCodingKey {}
 extension Arrow.Kind: Equatable {}
 extension Arrow: Equatable {}
 extension Arrow: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case kind
         case placement
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -119,11 +139,27 @@ extension Arrow: Codable {
         self.placement = try container.decodeIfPresent(AboveBelow.self, forKey: .placement)
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(kind, forKey: .kind)
         try position.encode(to: encoder)
         try printStyle.encode(to: encoder)
         try container.encodeIfPresent(placement, forKey: .placement)
+    }
+}
+
+extension Arrow: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.placement:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

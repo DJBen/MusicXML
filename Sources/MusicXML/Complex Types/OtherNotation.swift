@@ -10,12 +10,24 @@
 /// notations where more specific extension elements such as other-dynamics and other-technical are
 /// not appropriate.
 public struct OtherNotation {
-    public let value: String
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: StartStopSingle
     public let number: Int?
     public let printObject: Bool?
-    public let printStyle: PrintStyle
     public let placement: AboveBelow?
+
+    // MARK: Attribute Groups
+
+    public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let value: String
+
+    // MARK: - Initializers
 
     public init(_ value: String, type: StartStopSingle, number: Int? = nil, printObject: Bool? = nil, printStyle: PrintStyle = PrintStyle(), placement: AboveBelow? = nil) {
         self.value = value
@@ -29,6 +41,8 @@ public struct OtherNotation {
 
 extension OtherNotation: Equatable {}
 extension OtherNotation: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case number
@@ -37,15 +51,19 @@ extension OtherNotation: Codable {
         case value = ""
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(value, forKey: .value)
         try container.encode(type, forKey: .type)
         try container.encodeIfPresent(number, forKey: .number)
-        try container.encodeIfPresent(printObject, forKey: .printObject)
+        try container.encodeIfPresent(YesNo(printObject), forKey: .printObject)
         try printStyle.encode(to: encoder)
         try container.encodeIfPresent(placement, forKey: .placement)
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

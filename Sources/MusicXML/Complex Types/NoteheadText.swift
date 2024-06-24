@@ -8,24 +8,36 @@
 import XMLCoder
 
 public struct NoteheadText {
-    public enum Kind {
-        case displayText(FormattedText)
-        case accidentalText(AccidentalText)
-    }
+    // MARK: - Instance Properties
+
+    // MARK: Elements
 
     public let values: [Kind] // NonEmpty
+
+    // MARK: - Initializers
 
     public init(_ values: [Kind]) {
         self.values = values
     }
 }
 
+extension NoteheadText {
+    public enum Kind {
+        case displayText(FormattedText)
+        case accidentalText(AccidentalText)
+    }
+}
+
 extension NoteheadText.Kind: Equatable {}
 extension NoteheadText.Kind: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case displayText
         case accidentalText
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -36,6 +48,8 @@ extension NoteheadText.Kind: Codable {
             try container.encode(value, forKey: .accidentalText)
         }
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -64,3 +78,9 @@ extension NoteheadText.Kind.CodingKeys: XMLChoiceCodingKey {}
 
 extension NoteheadText: Equatable {}
 extension NoteheadText: Codable {}
+
+extension NoteheadText: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
+    }
+}

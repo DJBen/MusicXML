@@ -14,9 +14,22 @@
 public struct Note {
     // MARK: - Instance Properties
 
-    // MARK: Kind
+    // MARK: Attributes
 
-    public let kind: Kind
+    public let printObject: Bool?
+    public let printDot: Bool?
+    public let printSpacing: Bool?
+    public let printLyric: Bool?
+    public let dynamics: Double?
+    public let endDynamics: Double?
+    public let attack: Divisions?
+    public let release: Divisions?
+    public let timeOnly: TimeOnly?
+    public let pizzicato: Bool?
+
+    // MARK: Attribute Groups
+
+    public let printStyle: PrintStyle
 
     // MARK: Elements
 
@@ -37,22 +50,11 @@ public struct Note {
     public let lyrics: [Lyric]
     public let play: Play?
 
-    // MARK: Attributes
+    // MARK: Kind
 
-    public let printObject: Bool?
-    public let printDot: Bool?
-    public let printSpacing: Bool?
-    public let printLyric: Bool?
-    public let dynamics: Double?
-    public let endDynamics: Double?
-    public let attack: Divisions?
-    public let release: Divisions?
-    public let timeOnly: TimeOnly?
-    public let pizzicato: Bool?
+    public let kind: Kind
 
-    // MARK: Attribute Groups
-
-    public let printStyle: PrintStyle
+    // MARK: - Initializers
 
     public init(
         kind: Kind,
@@ -116,8 +118,6 @@ public struct Note {
 }
 
 extension Note {
-    // MARK: - Initializers
-
     // MARK: Normal
 
     /// Creates a pitched, normal `Note`.
@@ -249,6 +249,8 @@ extension Note {
 }
 
 extension Note.Kind: Codable {
+    // MARK: - Codable
+
     public enum CodingKeys: String, CodingKey {
         // Normal Note, Cue and Grace
         case grace
@@ -256,11 +258,9 @@ extension Note.Kind: Codable {
         case chord
         case duration
         case tie
-        // Kind
-        case pitch
-        case rest
-        case unpitched
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -281,19 +281,7 @@ extension Note.Kind: Codable {
         // The `Note` is a chord if it contains an empty `<chord/>` element.
         let isChord = container.contains(.chord)
 
-        // Decode pitch / unpitched / rest
-        // FIXME: (upstream) `let pitchUnpitchedOrRest = PitchUnpitchedOrRest(from: decoder)` should work here
-        let pitchUnpitchedOrRest: PitchUnpitchedOrRest
-        if container.contains(.pitch) {
-            let pitch = try container.decode(Pitch.self, forKey: .pitch)
-            pitchUnpitchedOrRest = .pitch(pitch)
-        } else if container.contains(.rest) {
-            let rest = try container.decode(Rest.self, forKey: .rest)
-            pitchUnpitchedOrRest = .rest(rest)
-        } else {
-            let unpitched = try container.decode(Unpitched.self, forKey: .unpitched)
-            pitchUnpitchedOrRest = .unpitched(unpitched)
-        }
+        let pitchUnpitchedOrRest = try PitchUnpitchedOrRest(from: decoder)
 
         if container.contains(.grace) {
             self = .grace(
@@ -313,50 +301,25 @@ extension Note.Kind: Codable {
         }
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
         case let .cue(cue):
             try container.encode(Empty(), forKey: .cue)
             if cue.isChord { try container.encode(Empty(), forKey: .chord) }
-
-            // FIXME: (upstream) `cue.pitchUnpitchedOrRest.encode(to: encoder)` should work here
-            switch cue.pitchUnpitchedOrRest {
-            case let .pitch(pitch):
-                try container.encode(pitch, forKey: .pitch)
-            case let .unpitched(unpitched):
-                try container.encode(unpitched, forKey: .unpitched)
-            case let .rest(rest):
-                try container.encode(rest, forKey: .rest)
-            }
+            try cue.pitchUnpitchedOrRest.encode(to: encoder)
             try container.encode(cue.duration, forKey: .duration)
         case let .grace(grace):
             try container.encode(Empty(), forKey: .grace)
             if grace.isChord { try container.encode(Empty(), forKey: .chord) }
-
-            // FIXME: (upstream) `grace.pitchUnpitchedOrRest.encode(to: encoder)` should work here
-            switch grace.pitchUnpitchedOrRest {
-            case let .pitch(pitch):
-                try container.encode(pitch, forKey: .pitch)
-            case let .unpitched(unpitched):
-                try container.encode(unpitched, forKey: .unpitched)
-            case let .rest(rest):
-                try container.encode(rest, forKey: .rest)
-            }
+            try grace.pitchUnpitchedOrRest.encode(to: encoder)
             try container.encodeIfPresent(grace.ties.start, forKey: .tie)
             try container.encodeIfPresent(grace.ties.stop, forKey: .tie)
         case let .normal(normal):
             if normal.isChord { try container.encode(Empty(), forKey: .chord) }
-
-            // FIXME: (upstream) `normal.pitchUnpitchedOrRest.encode(to: encoder)` should work here
-            switch normal.pitchUnpitchedOrRest {
-            case let .pitch(pitch):
-                try container.encode(pitch, forKey: .pitch)
-            case let .unpitched(unpitched):
-                try container.encode(unpitched, forKey: .unpitched)
-            case let .rest(rest):
-                try container.encode(rest, forKey: .rest)
-            }
+            try normal.pitchUnpitchedOrRest.encode(to: encoder)
             try container.encode(normal.duration, forKey: .duration)
             try container.encodeIfPresent(normal.ties.start, forKey: .tie)
             try container.encodeIfPresent(normal.ties.stop, forKey: .tie)
@@ -370,6 +333,8 @@ extension Note.Grace: Equatable {}
 
 extension Note: Equatable {}
 extension Note: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         // Attributes
         case printStyle = "print-style"
@@ -401,6 +366,8 @@ extension Note: Codable {
         case lyrics = "lyric"
         case play
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         // Decode attribute groups
@@ -441,6 +408,8 @@ extension Note: Codable {
         self.kind = try Kind(from: decoder)
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         try printStyle.encode(to: encoder)
 
@@ -461,17 +430,34 @@ extension Note: Codable {
         try container.encodeIfPresent(notations, forKey: .notations)
         try container.encode(lyrics, forKey: .lyrics)
         try container.encodeIfPresent(play, forKey: .play)
-        try container.encodeIfPresent(printObject, forKey: .printObject)
-        try container.encodeIfPresent(printDot, forKey: .printDot)
-        try container.encodeIfPresent(printSpacing, forKey: .printSpacing)
-        try container.encodeIfPresent(printLyric, forKey: .printLyric)
+        try container.encodeIfPresent(YesNo(printObject), forKey: .printObject)
+        try container.encodeIfPresent(YesNo(printDot), forKey: .printDot)
+        try container.encodeIfPresent(YesNo(printSpacing), forKey: .printSpacing)
+        try container.encodeIfPresent(YesNo(printLyric), forKey: .printLyric)
         try container.encodeIfPresent(dynamics, forKey: .dynamics)
         try container.encodeIfPresent(endDynamics, forKey: .endDynamics)
         try container.encodeIfPresent(attack, forKey: .attack)
         try container.encodeIfPresent(release, forKey: .release)
         try container.encodeIfPresent(timeOnly, forKey: .timeOnly)
-        try container.encodeIfPresent(pizzicato, forKey: .pizzicato)
+        try container.encodeIfPresent(YesNo(pizzicato), forKey: .pizzicato)
 
         try kind.encode(to: encoder)
+    }
+}
+
+import XMLCoder
+extension Note: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.printObject, CodingKeys.printDot:
+            return .attribute
+        case CodingKeys.printSpacing, CodingKeys.printLyric, CodingKeys.dynamics, CodingKeys.endDynamics, CodingKeys.attack, CodingKeys.release, CodingKeys.timeOnly, CodingKeys.pizzicato:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

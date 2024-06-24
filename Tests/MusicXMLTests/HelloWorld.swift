@@ -13,9 +13,9 @@ class HelloWorld: XCTestCase {
         let xml = """
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <!DOCTYPE score-partwise PUBLIC
-            "-//Recordare//DTD MusicXML 3.1 Partwise//EN"
+            "-//Recordare//DTD MusicXML 4.0 Partwise//EN"
             "http://www.musicxml.org/dtds/partwise.dtd">
-        <score-partwise version="3.1">
+        <score-partwise version="4.0">
           <part-list>
             <score-part id="P1">
               <part-name>Music</part-name>
@@ -70,14 +70,13 @@ class HelloWorld: XCTestCase {
         )
         // Create the part
         let part = Partwise.Part(id: "P1", measures: [measure])
-        // Create the score header
-        let header = Header(
+        // Create the traversal
+        let traversal = Partwise(
             partList: [
                 .part(ScorePart(id: "P1", name: "Music")),
-            ]
+            ],
+            parts: [part]
         )
-        // Create the traversal
-        let traversal = Partwise(header: header, parts: [part])
         // Create the score
         let score: Score = .partwise(traversal)
 

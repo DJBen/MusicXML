@@ -8,12 +8,21 @@
 /// Wavy lines are one way to indicate trills. When used with a measure element, they should always
 /// have type="continue" set.
 public struct WavyLine {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: StartStopContinue
     public let number: Int?
-    public let position: Position
     public let placement: AboveBelow?
     public let color: Color?
+
+    // MARK: Attribute Groups
+
+    public let position: Position
     public let trillSound: TrillSound
+
+    // MARK: - Initializers
 
     public init(type: StartStopContinue, number: Int? = nil, position: Position = Position(), placement: AboveBelow? = nil, color: Color? = nil, trillSound: TrillSound = TrillSound()) {
         self.type = type
@@ -27,12 +36,16 @@ public struct WavyLine {
 
 extension WavyLine: Equatable {}
 extension WavyLine: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case number
         case placement
         case color
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -44,6 +57,8 @@ extension WavyLine: Codable {
         try trillSound.encode(to: encoder)
     }
 
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         type = try container.decode(StartStopContinue.self, forKey: .type)
@@ -52,5 +67,20 @@ extension WavyLine: Codable {
         placement = try container.decodeIfPresent(AboveBelow.self, forKey: .placement)
         color = try container.decodeIfPresent(Color.self, forKey: .color)
         trillSound = try TrillSound(from: decoder)
+    }
+}
+
+import XMLCoder
+extension WavyLine: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.type, CodingKeys.number, CodingKeys.placement, CodingKeys.color:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

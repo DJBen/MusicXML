@@ -12,8 +12,14 @@
 /// music being repeated needs to be repeated within the MusicXML file. This element specifies the
 /// notation that indicates the repeat.
 public struct MeasureRepeat {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: StartStop
     public let slashes: Int
+
+    // MARK: - Initializers
 
     public init(type: StartStop, slashes: Int) {
         self.type = type
@@ -23,3 +29,15 @@ public struct MeasureRepeat {
 
 extension MeasureRepeat: Equatable {}
 extension MeasureRepeat: Codable {}
+
+import XMLCoder
+extension MeasureRepeat: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.type, CodingKeys.slashes:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

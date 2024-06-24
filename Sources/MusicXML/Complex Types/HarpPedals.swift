@@ -16,9 +16,11 @@ public struct HarpPedals {
 
     public let printStyleAlign: PrintStyleAlign
 
-    // MARK: - Elements
+    // MARK: Elements
 
     public let pedalTunings: [PedalTuning]
+
+    // MARK: - Initializers
 
     public init(_ pedalTunings: [PedalTuning], printStyleAlign: PrintStyleAlign = PrintStyleAlign()) {
         precondition(!pedalTunings.isEmpty)
@@ -29,9 +31,13 @@ public struct HarpPedals {
 
 extension HarpPedals: Equatable {}
 extension HarpPedals: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case pedalTunings = "pedal-tuning"
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         // Decode attribute groups
@@ -40,5 +46,15 @@ extension HarpPedals: Codable {
         // Decode elements
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.pedalTunings = try container.decode([PedalTuning].self, forKey: .pedalTunings)
+    }
+}
+
+import XMLCoder
+extension HarpPedals: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        return .element
     }
 }

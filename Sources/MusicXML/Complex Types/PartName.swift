@@ -11,11 +11,7 @@
 public struct PartName {
     // MARK: - Instance Properties
 
-    // MARK: Value
-
-    public var value: String
-
-    // MARK: - Attributes
+    // MARK: Attributes
 
     public var printObject: Bool?
     public var justify: Justify?
@@ -23,6 +19,10 @@ public struct PartName {
     // MARK: - Attribute Groups
 
     public var printStyle: PrintStyle
+
+    // MARK: Value
+
+    public var value: String
 
     // MARK: - Initializers
 
@@ -41,11 +41,15 @@ public struct PartName {
 
 extension PartName: Equatable {}
 extension PartName: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case printObject = "print-object"
         case justify
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -53,6 +57,16 @@ extension PartName: Codable {
         self.printStyle = try PrintStyle(from: decoder)
         self.printObject = try container.decodeIfPresent(Bool.self, forKey: .printObject)
         self.justify = try container.decodeIfPresent(Justify.self, forKey: .justify)
+    }
+
+    // MARK: Encodable
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(value, forKey: .value)
+        try container.encodeIfPresent(YesNo(printObject), forKey: .printObject)
+        try container.encodeIfPresent(justify, forKey: .justify)
+        try printStyle.encode(to: encoder)
     }
 }
 

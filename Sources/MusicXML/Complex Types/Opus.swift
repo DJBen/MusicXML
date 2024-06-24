@@ -9,8 +9,19 @@
 /// scores into a collection.
 // TODO: Flesh out Opus
 public struct Opus {
+    // MARK: - Instance Properties
+
+    // MARK: - Initializers
+
     public init() {}
 }
 
 extension Opus: Equatable {}
 extension Opus: Codable {}
+
+import XMLCoder
+extension Opus: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
+    }
+}

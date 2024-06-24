@@ -14,7 +14,9 @@ import XMLCoder
 /// but not printed, as is the case for excerpts from the middle of a score. The value is "yes" if
 /// not present.
 public struct Time {
-    // MARK: - Attributes
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
 
     /// The optional number attribute refers to staff numbers within the part. If absent, the
     /// time signature applies to all staves in the part.
@@ -33,14 +35,19 @@ public struct Time {
     /// beat-type arranged horizontally.
     public let separator: TimeSeparator?
 
-    public let printStyle: PrintStyle
     public let hAlign: LeftCenterRight?
     public let vAlign: VAlign?
     public let printObject: Bool?
 
-    // MARK: - Elements
+    // MARK: Attribute Groups
+
+    public let printStyle: PrintStyle
+
+    // MARK: Kind
 
     public let kind: Kind
+
+    // MARK: - Initializers
 
     public init(number: Int? = nil, symbol: TimeSymbol? = nil, separator: TimeSeparator? = nil, printStyle: PrintStyle = PrintStyle(), hAlign: LeftCenterRight? = nil, vAlign: VAlign? = nil, printObject: Bool? = nil, kind: Kind) {
         self.number = number
@@ -55,8 +62,6 @@ public struct Time {
 }
 
 extension Time {
-    // MARK: - Initializers
-
     /// Creates a `Measured` type `Time`.
     ///
     /// **Example Usage:**
@@ -109,6 +114,8 @@ extension Time {
 
 extension Time {
     public struct Signature {
+        // MARK: - Instance Properties
+
         let beats: Int
         let beatType: Int
 
@@ -135,6 +142,8 @@ extension Time {
     // > available compared to the time element's symbol attribute,
     // > which applies to the first of the dual time signatures.
     public struct Measured {
+        // MARK: - Instance Properties
+
         // FIXME: Handle multiple time signatures in Time.Measured
         var signature: Signature
         var interchangeable: Interchangeable?
@@ -151,6 +160,8 @@ extension Time {
     // > The time element's symbol attribute is not used when a
     // > senza-misura element is present.
     public struct Unmeasured {
+        // MARK: - Instance Properties
+
         let symbol: String?
 
         public init(symbol: String? = nil) {
@@ -166,6 +177,8 @@ extension Time {
 
 extension Time.Signature: Equatable {}
 extension Time.Signature: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case beats
         case beatType = "beat-type"
@@ -174,10 +187,14 @@ extension Time.Signature: Codable {
 
 extension Time.Measured: Equatable {}
 extension Time.Measured: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case signature
         case interchangeable
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let signatureContainer = try decoder.container(keyedBy: Time.Signature.CodingKeys.self)
@@ -192,6 +209,8 @@ extension Time.Measured: Codable {
 
 extension Time.Unmeasured: Equatable {}
 extension Time.Unmeasured: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case symbol
     }
@@ -199,10 +218,14 @@ extension Time.Unmeasured: Codable {
 
 extension Time.Kind: Equatable {}
 extension Time.Kind: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case measured
         case unmeasured
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -213,6 +236,8 @@ extension Time.Kind: Codable {
             try container.encode(value, forKey: .unmeasured)
         }
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -226,6 +251,19 @@ extension Time.Kind: Codable {
 
 extension Time: Equatable {}
 extension Time: Codable {
+    // MARK: - Codable
+
+    private enum CodingKeys: String, CodingKey {
+        case number
+        case symbol
+        case separator
+        case hAlign = "halign"
+        case vAlign = "valign"
+        case printObject = "print-object"
+    }
+
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         // Decode attributes
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -266,6 +304,20 @@ extension Time: DynamicNodeDecoding {
     public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
         switch key {
         case CodingKeys.symbol, CodingKeys.number:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}
+
+extension Time: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.number, CodingKeys.symbol, CodingKeys.separator, CodingKeys.hAlign, CodingKeys.vAlign, CodingKeys.printObject:
             return .attribute
         default:
             return .element

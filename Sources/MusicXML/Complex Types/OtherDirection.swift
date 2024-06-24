@@ -9,9 +9,21 @@
 /// of the MusicXML format. This allows extended representation, though without application
 /// interoperability.
 public struct OtherDirection {
-    public let value: String
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let printObject: Bool?
+
+    // MARK: Attribute Groups
+
     public let printStyleAlign: PrintStyleAlign
+
+    // MARK: Value
+
+    public let value: String
+
+    // MARK: - Initializers
 
     public init(_ value: String, printObject: Bool? = nil, printStyleAlign: PrintStyleAlign = PrintStyleAlign()) {
         self.value = value
@@ -22,17 +34,23 @@ public struct OtherDirection {
 
 extension OtherDirection: Equatable {}
 extension OtherDirection: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case printObject
         case value = ""
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(value, forKey: .value)
-        try container.encodeIfPresent(printObject, forKey: .printObject)
+        try container.encodeIfPresent(YesNo(printObject), forKey: .printObject)
         try printStyleAlign.encode(to: encoder)
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

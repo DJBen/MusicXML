@@ -16,7 +16,7 @@ public struct Print {
     // MARK: - Instance Properties
 
     // MARK: Attributes
-
+    public var id: String?
     public let staffSpacing: Tenths?
     public let newSystem: Bool?
     public let newPage: Bool?
@@ -76,6 +76,7 @@ public struct Print {
     // MARK: - Initializers
 
     public init(
+        id: String? = nil,
         pageLayout: PageLayout? = nil,
         systemLayout: SystemLayout? = nil,
         staffLayout: [StaffLayout] = [],
@@ -89,6 +90,7 @@ public struct Print {
         blankPage: Int? = nil,
         pageNumber: String? = nil
     ) {
+        self.id = id
         self.pageLayout = pageLayout
         self.systemLayout = systemLayout
         self.staffLayout = staffLayout
@@ -104,9 +106,11 @@ public struct Print {
     }
 }
 
-extension Print: Equatable {}
+extension Print: Equatable { }
 
 extension Print: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case pageLayout = "page-layout"
         case systemLayout = "system-layout"
@@ -115,10 +119,24 @@ extension Print: Codable {
         case measureNumbering = "measure-numbering"
         case partNameDisplay = "part-name-display"
         case partAbbreviationDisplay = "part-abbreviation-display"
-        case staffSpacing = "staff-spacing"
-        case newSystem = "new-system"
-        case newPage = "new-page"
         case blankPage = "blank-page"
+        case id
+        case newPage = "new-page"
+        case newSystem = "new-system"
         case pageNumber = "page-number"
+        case staffSpacing = "staff-spacing"
+    }
+}
+
+import XMLCoder
+
+extension Print: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.staffSpacing, CodingKeys.newSystem, CodingKeys.newPage, CodingKeys.blankPage, CodingKeys.pageNumber, CodingKeys.id:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

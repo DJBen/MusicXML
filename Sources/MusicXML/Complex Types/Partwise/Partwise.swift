@@ -7,13 +7,30 @@
 
 /// The `partwise` traversal of a MusicXML score.
 public struct Partwise {
+    // MARK: - Instance Properties
+
     // MARK: Elements
 
-    public let header: Header
+    // TODO: Check the new elements in MusicXML 4.0
+    public var work: Work?
+    public var movementNumber: String?
+    public var movementTitle: String?
+    public var identification: Identification?
+    public var defaults: Defaults?
+    public var credits: [Credit]?
+    public var partList: PartList
     public var parts: [Part]
 
-    public init(header: Header, parts: [Part]) {
-        self.header = header
+    // MARK: - Initializers
+
+    public init(work: Work? = nil, movementNumber: String? = nil, movementTitle: String? = nil, identification: Identification? = nil, defaults: Defaults? = nil, credits: [Credit]? = nil, partList: PartList, parts: [Part]) {
+        self.work = work
+        self.movementNumber = movementNumber
+        self.movementTitle = movementTitle
+        self.identification = identification
+        self.defaults = defaults
+        self.credits = credits
+        self.partList = partList
         self.parts = parts
     }
 }
@@ -35,7 +52,15 @@ extension Partwise {
             }
         }
         return Timewise(
-            header: header,
+            header: Header(
+                work: work,
+                movementNumber: movementNumber,
+                movementTitle: movementTitle,
+                identification: identification,
+                defaults: defaults,
+                credits: credits,
+                partList: partList
+            ),
             measures: partsByMeasureAttributes.map(Timewise.Measure.init)
         )
     }
@@ -44,26 +69,34 @@ extension Partwise {
 extension Partwise: Equatable {}
 
 extension Partwise: Codable {
+    // MARK: - Codable
+
     // MARK: - Decodable
 
     enum CodingKeys: String, CodingKey {
+        case work
+        case movementNumber = "movement-number"
+        case movementTitle = "movement-title"
+        case identification
+        case defaults
+        case credits = "credit"
+        case partList = "part-list"
         case parts = "part"
     }
+}
 
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.header = try Header(from: decoder)
-        self.parts = try container.decode([Part].self, forKey: .parts)
-        // There is not currently a way for the `XMLDecoder` to check against the case of the
-        // `Score` type at the top-level. A `Partwise` traversal must have at least one part.
-        guard !parts.isEmpty else {
-            throw DecodingError.typeMismatch(
-                Partwise.self,
-                DecodingError.Context(
-                    codingPath: decoder.codingPath,
-                    debugDescription: "Expected Partwise traversal but no parts found"
-                )
-            )
-        }
+import XMLCoder
+
+// !!!: `NodeEncoding`
+extension Partwise: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+//        switch key {
+//        case Partwise.CodingKeys.parts: return .both
+//        default: return .element
+//        }
+// T.
+        return .element
     }
 }
+
+// https://github.com/CoreOffice/XMLCoder/blob/3944866/README.md#dynamic-node-coding

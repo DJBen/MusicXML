@@ -19,11 +19,7 @@ import XMLCoder
 public struct Lyric {
     // MARK: - Instance Properties
 
-    // MARK: Kind
-
-    public let kind: Kind
-
-    // MARK: One-off Attributes
+    // MARK: Attributes
 
     /// The lyric number indicates multiple lines, though a name can be used as well (as in Finale's
     /// verse / chorus / section specification).
@@ -52,6 +48,10 @@ public struct Lyric {
     public let endParagraph: Bool
 
     public let level: Level?
+
+    // MARK: Kind
+
+    public let kind: Kind
 
     // MARK: - Initializers
 
@@ -117,6 +117,8 @@ extension Lyric.Kind: Equatable {}
 
 extension Lyric: Equatable {}
 extension Lyric: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case kind
         case number
@@ -136,6 +138,8 @@ extension Lyric: Codable {
         case elision
         case level
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -186,7 +190,23 @@ extension Lyric: Codable {
         }
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         fatalError()
+    }
+}
+
+extension Lyric: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.number, CodingKeys.name, CodingKeys.justify, CodingKeys.color, CodingKeys.placement, CodingKeys.printObject:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

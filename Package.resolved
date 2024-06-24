@@ -3,11 +3,11 @@
     "pins": [
       {
         "package": "XMLCoder",
-        "repositoryURL": "https://github.com/bwetherfield/XMLCoder",
+        "repositoryURL": "https://github.com/MaxDesiatov/XMLCoder",
         "state": {
-          "branch": "value-coding-key-empty",
-          "revision": "f35a28a5093dc7952116422f3bff05fcb08e8324",
-          "version": null
+          "branch": null,
+          "revision": "b1e944cbd0ef33787b13f639a5418d55b3bed501",
+          "version": "0.17.1"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/jpsim/Yams.git",
         "state": {
           "branch": null,
-          "revision": "c947a306d2e80ecb2c0859047b35c73b8e1ca27f",
-          "version": "2.0.0"
+          "revision": "0d9ee7ea8c4ebd4a489ad7a73d5c6cad55d6fed3",
+          "version": "5.0.6"
         }
       }
     ]

@@ -13,7 +13,7 @@ public struct Dashes {
 
     public let dashedFormatting: DashedFormatting
 
-    // MARK: One-off Attributes
+    // MARK: Attributes
 
     public let type: StartStopContinue
 
@@ -30,11 +30,30 @@ public struct Dashes {
 
 extension Dashes: Equatable {}
 extension Dashes: Codable {
+    // MARK: - Codable
+
+    // MARK: Decodable
+
     public init(from decoder: Decoder) throws {
         // Decode attribute groups
         self.dashedFormatting = try DashedFormatting(from: decoder)
         // Decode one-off attributes
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.type = try container.decode(StartStopContinue.self, forKey: .type)
+    }
+}
+
+import XMLCoder
+extension Dashes: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.type:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

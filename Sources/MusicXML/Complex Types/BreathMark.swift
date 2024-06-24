@@ -9,15 +9,20 @@
 public struct BreathMark {
     // MARK: - Instance Properties
 
+    // MARK: Attributes
+
+    public let placement: AboveBelow?
+
+    // MARK: Attribute Groups
+
+    public let position: Position
+    public let printStyle: PrintStyle
+
     // MARK: Value
 
     public let value: BreathMarkValue
 
-    // MARK: Attributes
-
-    public let placement: AboveBelow?
-    public let position: Position
-    public let printStyle: PrintStyle
+    // MARK: - Initializers
 
     public init(
         _ value: BreathMarkValue = .comma,
@@ -34,10 +39,14 @@ public struct BreathMark {
 
 extension BreathMark: Equatable {}
 extension BreathMark: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case placement
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         // Decode attribute groups

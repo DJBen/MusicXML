@@ -3,3 +3,11 @@
 /Packages
 /*.xcodeproj
 /.swiftpm
+Sources/MusicXML/Output/*
+
+## other
+
+*.doccarchive
+*.rtf
+*.txt
+*.md

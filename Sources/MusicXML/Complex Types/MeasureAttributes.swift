@@ -7,6 +7,10 @@
 
 /// The attributes which are shared between the `Timewise` and `Partwise` forms of `Measure`.
 public struct MeasureAttributes {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let number: String
     public let text: String?
     public let implicit: Bool?
@@ -19,12 +23,26 @@ extension MeasureAttributes: Equatable {}
 extension MeasureAttributes: Hashable {}
 
 extension MeasureAttributes: Codable {
-    private enum CodingKeys: String, CodingKey {
+    // MARK: - Codable
+
+    internal enum CodingKeys: String, CodingKey {
         case number
         case text
         case implicit
         case nonControlling = "non-controlling"
         case width
         case optionalUniqueID = "optional-unique-id"
+    }
+}
+
+import XMLCoder
+extension MeasureAttributes: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.number, CodingKeys.text, CodingKeys.implicit, CodingKeys.nonControlling, CodingKeys.width, CodingKeys.optionalUniqueID:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

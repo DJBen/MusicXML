@@ -10,11 +10,23 @@
 /// fingering element represents the fretting finger; the pluck element represents the plucking
 /// finger.
 public struct Fingering {
-    public let value: String
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let substitution: Bool?
     public let alternate: Bool?
     public let placement: AboveBelow?
+
+    // MARK: Attribute Groups
+
     public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let value: String
+
+    // MARK: - Initializers
 
     public init(
         _ value: String = "",
@@ -33,12 +45,16 @@ public struct Fingering {
 
 extension Fingering: Equatable {}
 extension Fingering: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case substitution
         case alternate
         case placement
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         // Decode attribute groups
@@ -52,13 +68,15 @@ extension Fingering: Codable {
         self.value = try container.decode(String.self, forKey: .value)
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try printStyle.encode(to: encoder)
         try container.encode(value, forKey: .value)
-        try container.encodeIfPresent(substitution, forKey: .substitution)
-        try container.encodeIfPresent(alternate, forKey: .alternate)
+        try container.encodeIfPresent(YesNo(substitution), forKey: .substitution)
+        try container.encodeIfPresent(YesNo(alternate), forKey: .alternate)
         try container.encodeIfPresent(placement, forKey: .placement)
+        try printStyle.encode(to: encoder)
     }
 }
 

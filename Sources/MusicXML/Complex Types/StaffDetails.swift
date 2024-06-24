@@ -10,6 +10,10 @@
 /// where empty parts are omitted. It is yes by default. If print-spacing is yes while print-object
 /// is no, the score is printed in cutaway format where vertical space is left for the empty part.
 public struct StaffDetails {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     /// The optional number attribute specifies the staff number from top to bottom on the system,
     /// as with clef.
     public let number: Int?
@@ -19,6 +23,8 @@ public struct StaffDetails {
 
     public let printObject: Bool?
     public let printSpacing: Bool?
+
+    // MARK: Elements
 
     /// The staff-type value can be ossia, cue, editorial, regular, or alternate. An alternate staff
     /// indicates one that shares the same musical data as the prior staff, but displayed
@@ -44,6 +50,8 @@ public struct StaffDetails {
     /// staff to the left and right margins.
     public let staffSize: Double?
 
+    // MARK: - Initializers
+
     public init(number: Int? = nil, showFrets: ShowFrets? = nil, printObject: Bool? = nil, printSpacing: Bool? = nil, staffType: StaffType? = nil, staffLines: Int? = nil, staffTuning: [StaffTuning], capo: Int? = nil, staffSize: Double? = nil) {
         self.number = number
         self.showFrets = showFrets
@@ -59,3 +67,15 @@ public struct StaffDetails {
 
 extension StaffDetails: Equatable {}
 extension StaffDetails: Codable {}
+
+import XMLCoder
+extension StaffDetails: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.number, CodingKeys.showFrets, CodingKeys.printObject, CodingKeys.printSpacing:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

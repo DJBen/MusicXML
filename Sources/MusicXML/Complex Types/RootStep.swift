@@ -8,9 +8,21 @@
 /// The root-step type represents the pitch step of the root of the current chord within the harmony
 /// element.
 public struct RootStep {
-    public let value: Step
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let text: String?
+
+    // MARK: Attribute Groups
+
     public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let value: Step
+
+    // MARK: - Initializers
 
     public init(
         _ value: Step,
@@ -37,10 +49,14 @@ extension RootStep {
 
 extension RootStep: Equatable {}
 extension RootStep: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case text
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

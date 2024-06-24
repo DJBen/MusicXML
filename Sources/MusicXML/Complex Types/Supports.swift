@@ -12,10 +12,16 @@
 /// particular values. This lets applications communicate, for example, that all system and/or page
 /// breaks are contained in the MusicXML file.
 public struct Supports {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let attribute: String?
     public let element: String
     public let type: Bool
     public let value: String?
+
+    // MARK: - Initializers
 
     public init(attribute: String? = nil, element: String, type: Bool, value: String? = nil) {
         self.attribute = attribute
@@ -27,3 +33,15 @@ public struct Supports {
 
 extension Supports: Equatable {}
 extension Supports: Codable {}
+
+import XMLCoder
+extension Supports: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.attribute, CodingKeys.element, CodingKeys.type, CodingKeys.value:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

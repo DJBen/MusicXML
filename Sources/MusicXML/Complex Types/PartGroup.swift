@@ -16,8 +16,15 @@
 /// bar-style) common barlines. The symbol formatting for a multi-staff part can be more fully
 /// specified using the part-symbol element.
 public struct PartGroup {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public var type: StartStop
     public var number: Int?
+
+    // MARK: Elements
+
     public var name: GroupName?
     public var nameDisplay: NameDisplay?
     public var abbreviation: GroupName?
@@ -26,6 +33,8 @@ public struct PartGroup {
     public var barline: GroupBarline?
     public var time: Bool?
     public var editorial: Editorial?
+
+    // MARK: - Initializers
 
     public init(type: StartStop, number: Int? = nil, name: GroupName? = nil, nameDisplay: NameDisplay? = nil, abbreviation: GroupName? = nil, abbreviationDisplay: NameDisplay? = nil, symbol: GroupSymbol? = nil, barline: GroupBarline? = nil, time: Bool? = nil, editorial: Editorial? = nil) {
         self.type = type
@@ -41,8 +50,11 @@ public struct PartGroup {
     }
 }
 
-extension PartGroup: Equatable {}
+extension PartGroup: Equatable { }
+
 extension PartGroup: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case number
@@ -54,5 +66,18 @@ extension PartGroup: Codable {
         case barline = "group-barline"
         case time
         case editorial
+    }
+}
+
+import XMLCoder
+
+extension PartGroup: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.type, CodingKeys.number:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

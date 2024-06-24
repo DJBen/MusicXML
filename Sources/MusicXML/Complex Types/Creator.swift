@@ -8,13 +8,15 @@
 import XMLCoder
 
 public struct Creator {
-    // MARK: - Value
+    // MARK: - Instance Properties
 
-    public var value: String
-
-    // MARK: - Attribtues
+    // MARK: - Attributes
 
     public var type: String?
+
+    // MARK: Value
+
+    public var value: String
 
     // MARK: - Initializers
 
@@ -27,6 +29,8 @@ public struct Creator {
 extension Creator: Equatable {}
 
 extension Creator: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case value = ""
         case type

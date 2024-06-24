@@ -8,9 +8,21 @@
 /// The handbell element represents notation for various techniques used in handbell and handchime
 /// music.
 public struct Handbell {
-    public let value: HandbellValue
-    public let printStyle: PrintStyle
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let placement: AboveBelow?
+
+    // MARK: Attribute Groups
+
+    public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let value: HandbellValue
+
+    // MARK: - Initializers
 
     public init(_ value: HandbellValue, printStyle: PrintStyle = PrintStyle(), placement: AboveBelow? = nil) {
         self.value = value
@@ -21,10 +33,14 @@ public struct Handbell {
 
 extension Handbell: Equatable {}
 extension Handbell: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case placement
         case value = ""
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -32,6 +48,8 @@ extension Handbell: Codable {
         printStyle = try PrintStyle(from: decoder)
         placement = try container.decodeIfPresent(AboveBelow.self, forKey: .placement)
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

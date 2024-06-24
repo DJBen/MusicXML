@@ -14,10 +14,6 @@
 public struct DegreeAlter {
     // MARK: - Instance Properties
 
-    // MARK: Value
-
-    public let value: Int
-
     // MARK: Attributes
 
     public let plusMinus: Bool?
@@ -25,6 +21,10 @@ public struct DegreeAlter {
     // MARK: Attribute Groups
 
     public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let value: Int
 
     // MARK: - Initializers
 
@@ -37,16 +37,29 @@ public struct DegreeAlter {
 
 extension DegreeAlter: Equatable {}
 extension DegreeAlter: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case plusMinus = "plus-minus"
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.printStyle = try PrintStyle(from: decoder)
         self.value = try container.decode(Int.self, forKey: .value)
         self.plusMinus = try container.decodeIfPresent(Bool.self, forKey: .plusMinus)
+    }
+
+    // MARK: Encodable
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(value, forKey: .value)
+        try container.encodeIfPresent(YesNo(plusMinus), forKey: .plusMinus)
+        try printStyle.encode(to: encoder)
     }
 }
 

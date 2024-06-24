@@ -10,10 +10,22 @@
 /// principal-voice element is used for analysis and may be any text value. When used for analysis
 /// separate from any printed score markings, the symbol attribute should be set to "none".
 public struct PrincipleVoice {
-    public let value: String
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: StartStop
     public let symbol: PrincipleVoiceSymbol
+
+    // MARK: Attribute Groups
+
     public let printStyleAlign: PrintStyleAlign
+
+    // MARK: Value
+
+    public let value: String
+
+    // MARK: - Initializers
 
     public init(_ value: String, type: StartStop, symbol: PrincipleVoiceSymbol, printStyleAlign: PrintStyleAlign = PrintStyleAlign()) {
         self.value = value
@@ -25,11 +37,15 @@ public struct PrincipleVoice {
 
 extension PrincipleVoice: Equatable {}
 extension PrincipleVoice: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case symbol
         case value = ""
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -38,6 +54,8 @@ extension PrincipleVoice: Codable {
         try container.encode(symbol, forKey: .symbol)
         try printStyleAlign.encode(to: encoder)
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

@@ -24,6 +24,10 @@
 /// reflects the intended musical position for the change in sound. It should not be used to
 /// compensate for latency issues in particular hardware configurations.
 public struct Sound {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let tempo: Double?
     public let dynamics: Double?
     public let dacapo: Bool?
@@ -41,8 +45,13 @@ public struct Sound {
     public let damperPedal: YesNoNumber?
     public let softPedal: YesNoNumber?
     public let sostenutoPedal: YesNoNumber?
+
+    // MARK: Elements
+
     public let offset: Offset?
     public let midi: [MIDI]
+
+    // MARK: - Initializers
 
     public init(tempo: Double? = nil, dynamics: Double? = nil, dacapo: Bool? = nil, segno: String? = nil, dalsegno: String? = nil, coda: String? = nil, tocoda: String? = nil, divisions: Divisions? = nil, forwardRepeat: Bool? = nil, fine: String? = nil, timeOnly: TimeOnly? = nil, pizzicato: Bool? = nil, pan: Double? = nil, elevation: Double? = nil, damperPedal: YesNoNumber? = nil, softPedal: YesNoNumber? = nil, sostenutoPedal: YesNoNumber? = nil, offset: Offset? = nil, midi: [MIDI] = []) {
         self.tempo = tempo
@@ -69,6 +78,8 @@ public struct Sound {
 
 extension Sound {
     public struct MIDI {
+        // MARK: - Instance Properties
+
         /// The midi-device type corresponds to the DeviceName meta event in Standard MIDI Files.
         /// Unlike the DeviceName meta event, there can be multiple midi-device elements per
         /// MusicXML part starting in MusicXML 3.0.
@@ -87,6 +98,8 @@ extension Sound {
         /// note element, it applies to the current note only.
         public let play: Play?
 
+        // MARK: - Initializers
+
         public init(midiDevice: MIDIDevice? = nil, midiInstrument: MIDIInstrument? = nil, play: Play? = nil) {
             self.midiDevice = midiDevice
             self.midiInstrument = midiInstrument
@@ -96,7 +109,196 @@ extension Sound {
 }
 
 extension Sound.MIDI: Equatable {}
-extension Sound.MIDI: Codable {}
+extension Sound.MIDI: Codable {
+    // MARK: - Codable
+
+    enum CodingKeys: String, CodingKey {
+        case midiDevice = "midi-device"
+        case midiInstrument = "midi-instrument"
+        case play
+    }
+
+    // MARK: Decodable
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.midiDevice = try container.decodeIfPresent(MIDIDevice.self, forKey: .midiDevice)
+        self.midiInstrument = try container.decodeIfPresent(MIDIInstrument.self, forKey: .midiInstrument)
+        self.play = try container.decodeIfPresent(Play.self, forKey: .play)
+    }
+}
 
 extension Sound: Equatable {}
-extension Sound: Codable {}
+extension Sound: Codable {
+    // MARK: - Codable
+
+    enum CodingKeys: String, CodingKey {
+        case tempo
+        case dynamics
+        case dacapo
+        case segno
+        case dalsegno
+        case coda
+        case tocoda
+        case divisions
+        case forwardRepeat = "forward-repeat"
+        case fine
+        case timeOnly = "time-only"
+        case pizzicato
+        case pan
+        case elevation
+        case damperPedal = "damper-pedal"
+        case softPedal = "soft-pedal"
+        case sostenutoPedal = "sostenuto-pedal"
+        case offset
+    }
+
+    // MARK: Decodable
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.tempo = try container.decodeIfPresent(Double.self, forKey: .tempo)
+        self.dynamics = try container.decodeIfPresent(Double.self, forKey: .dynamics)
+        self.dacapo = try container.decodeIfPresent(Bool.self, forKey: .dacapo)
+        self.segno = try container.decodeIfPresent(String.self, forKey: .segno)
+        self.dalsegno = try container.decodeIfPresent(String.self, forKey: .dalsegno)
+        self.coda = try container.decodeIfPresent(String.self, forKey: .coda)
+        self.tocoda = try container.decodeIfPresent(String.self, forKey: .tocoda)
+        self.divisions = try container.decodeIfPresent(Divisions.self, forKey: .divisions)
+        self.forwardRepeat = try container.decodeIfPresent(Bool.self, forKey: .forwardRepeat)
+        self.fine = try container.decodeIfPresent(String.self, forKey: .fine)
+        self.timeOnly = try container.decodeIfPresent(TimeOnly.self, forKey: .timeOnly)
+        self.pizzicato = try container.decodeIfPresent(Bool.self, forKey: .pizzicato)
+        self.pan = try container.decodeIfPresent(Double.self, forKey: .pan)
+        self.elevation = try container.decodeIfPresent(Double.self, forKey: .elevation)
+        self.damperPedal = try container.decodeIfPresent(YesNoNumber.self, forKey: .damperPedal)
+        self.softPedal = try container.decodeIfPresent(YesNoNumber.self, forKey: .softPedal)
+        self.sostenutoPedal = try container.decodeIfPresent(YesNoNumber.self, forKey: .sostenutoPedal)
+
+        let singleValueContainer = try decoder.singleValueContainer()
+        let components = try singleValueContainer.decode([MIDIComponent].self)
+        self.midi = MIDI.assemble(from: components)
+
+        self.offset = try container.decodeIfPresent(Offset.self, forKey: .offset)
+    }
+
+    // MARK: Encodable
+
+    public func encode(to encoder: Encoder) throws {
+        fatalError("TODO")
+    }
+}
+
+internal enum MIDIComponent {
+    case midiDevice(MIDIDevice)
+    case midiInstrument(MIDIInstrument)
+    case play(Play)
+}
+
+extension MIDIComponent: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case midiDevice = "midi-device"
+        case midiInstrument = "midi-instrument"
+        case play
+    }
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        func decode <T>(_ key: CodingKeys) throws -> T where T: Codable {
+            return try container.decode(T.self, forKey: key)
+        }
+
+        if container.contains(.midiDevice) {
+            self = .midiDevice(try decode(.midiDevice))
+        } else if container.contains(.midiInstrument) {
+            self = .midiInstrument(try decode(.midiInstrument))
+        } else if container.contains(.play) {
+            self = .play(try decode(.play))
+        } else {
+            throw DecodingError.typeMismatch(
+                MIDIComponent.self,
+                DecodingError.Context(
+                    codingPath: decoder.codingPath,
+                    debugDescription: "Unrecognized choice"
+                )
+            )
+        }
+    }
+}
+
+extension Sound.MIDI {
+    internal static func assemble(from components: [MIDIComponent]) -> [Sound.MIDI] {
+        var previousDevice: MIDIDevice?
+        var previousInstrument: MIDIInstrument?
+        var midi = [Sound.MIDI]()
+        components.forEach {
+            switch $0 {
+            case let .midiDevice(device):
+                if previousDevice != nil || previousInstrument != nil {
+                    midi.append(.init(
+                        midiDevice: previousDevice,
+                        midiInstrument: previousInstrument
+                    )
+                    )
+                }
+                previousDevice = device
+                previousInstrument = nil
+            case let .midiInstrument(instrument):
+                if previousInstrument != nil {
+                    midi.append(.init(
+                        midiDevice: previousDevice,
+                        midiInstrument: previousInstrument
+                    )
+                    )
+                }
+                previousDevice = nil
+                previousInstrument = instrument
+            case let .play(play):
+                midi.append(.init(
+                    midiDevice: previousDevice,
+                    midiInstrument: previousInstrument,
+                    play: play
+                )
+                )
+                previousDevice = nil
+                previousInstrument = nil
+            }
+        }
+        return midi
+    }
+}
+
+import XMLCoder
+
+extension MIDIComponent.CodingKeys: XMLChoiceCodingKey {}
+
+extension Sound: DynamicNodeDecoding {
+    public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
+        switch key {
+        case CodingKeys.offset:
+            return .element
+        default:
+            return .attribute
+        }
+    }
+}
+
+extension Sound: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.tempo, CodingKeys.dynamics:
+            return .attribute
+        case CodingKeys.dacapo, CodingKeys.segno, CodingKeys.dalsegno:
+            return .attribute
+        case CodingKeys.coda, CodingKeys.tocoda, CodingKeys.divisions:
+            return .attribute
+        case CodingKeys.forwardRepeat, CodingKeys.fine, CodingKeys.timeOnly:
+            return .attribute
+        case CodingKeys.pizzicato, CodingKeys.pan, CodingKeys.elevation, CodingKeys.damperPedal, CodingKeys.softPedal, CodingKeys.sostenutoPedal:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

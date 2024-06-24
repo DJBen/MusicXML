@@ -12,28 +12,40 @@ import XMLCoder
 /// going forward in score order. When used as part of a note element, it applies to the current
 /// note only.
 public struct Play {
-    public enum Kind {
-        case ipa(String)
-        case mute(Mute)
-        case semiPitched(SemiPitched)
-        case otherPlay(OtherPlay)
-    }
+    // MARK: - Instance Properties
+
+    // MARK: Elements
 
     public let values: [Kind]
+
+    // MARK: - Initializers
 
     public init(_ values: [Kind]) {
         self.values = values
     }
 }
 
+extension Play {
+    public enum Kind {
+        case ipa(String)
+        case mute(Mute)
+        case semiPitched(SemiPitched)
+        case otherPlay(OtherPlay)
+    }
+}
+
 extension Play.Kind: Equatable {}
 extension Play.Kind: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case ipa
         case mute
-        case semiPitched
-        case otherPlay
+        case semiPitched = "semi-pitched"
+        case otherPlay = "other-play"
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -48,6 +60,8 @@ extension Play.Kind: Codable {
             try container.encode(value, forKey: .otherPlay)
         }
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -79,4 +93,19 @@ extension Play.Kind: Codable {
 extension Play.Kind.CodingKeys: XMLChoiceCodingKey {}
 
 extension Play: Equatable {}
-extension Play: Codable {}
+extension Play: Codable {
+    // MARK: - Codable
+
+    // MARK: Decodable
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self.values = try container.decode([Kind].self)
+    }
+}
+
+extension Play: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
+    }
+}

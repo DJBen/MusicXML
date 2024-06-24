@@ -7,12 +7,16 @@
 
 /// The `timewise` traversal of a `MusicXML` score.
 public struct Timewise {
+    // MARK: - Instance Properties
+
     // MARK: Elements
 
     public let header: Header
 
     /// The `Measure` values which comprise a `Timewise` traversal of a `MusicXML` score.
     public let measures: [Measure]
+
+    // MARK: - Initializers
 
     public init(header: Header, measures: [Measure]) {
         self.header = header
@@ -23,20 +27,20 @@ public struct Timewise {
 extension Timewise {
     // MARK: - Instance Methods
 
-    /// - Returns: A `Partwise` representation of this `Timewise` traversal.
-    public func toPartwise() -> Partwise {
-        var measuresByPartID: [String: [Partwise.Measure]] = [:]
-        for timewiseMeasure in measures {
-            for timewisePart in timewiseMeasure.parts {
-                let partwiseMeasure = Partwise.Measure(
-                    attributes: timewiseMeasure.attributes,
-                    musicData: timewisePart.musicData
-                )
-                measuresByPartID[timewisePart.id, default: []].append(partwiseMeasure)
-            }
-        }
-        return Partwise(header: header, parts: measuresByPartID.map(Partwise.Part.init))
-    }
+//    /// - Returns: A `Partwise` representation of this `Timewise` traversal.
+//    public func toPartwise() -> Partwise {
+//        var measuresByPartID: [String: [Partwise.Measure]] = [:]
+//        for timewiseMeasure in measures {
+//            for timewisePart in timewiseMeasure.parts {
+//                let partwiseMeasure = Partwise.Measure(
+//                    attributes: timewiseMeasure.attributes,
+//                    musicData: timewisePart.musicData
+//                )
+//                measuresByPartID[timewisePart.id, default: []].append(partwiseMeasure)
+//            }
+//        }
+//        return Partwise(header: header, parts: measuresByPartID.map(Partwise.Part.init))
+//    }
 }
 
 extension Timewise: Equatable {}
@@ -47,6 +51,8 @@ extension Timewise: Codable {
     enum CodingKeys: String, CodingKey {
         case measures = "measure"
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -63,5 +69,12 @@ extension Timewise: Codable {
                 )
             )
         }
+    }
+}
+
+import XMLCoder
+extension Timewise: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
     }
 }

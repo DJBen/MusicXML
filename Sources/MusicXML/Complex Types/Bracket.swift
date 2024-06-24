@@ -6,6 +6,10 @@
 //
 
 public struct Bracket {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: StartStopContinue
     public let number: Int?
     /// The line-end attribute specifies if there is a jog up or down (or both), an arrow, or
@@ -16,8 +20,13 @@ public struct Bracket {
     public let lineType: LineType?
     public let dashLength: Tenths?
     public let spaceLength: Tenths?
-    public let position: Position
     public let color: Color?
+
+    // MARK: Attribute Groups
+
+    public let position: Position
+
+    // MARK: - Initializers
 
     public init(type: StartStopContinue, number: Int? = nil, lineEnd: LineEnd, endLength: Tenths? = nil, lineType: LineType? = nil, dashLength: Tenths? = nil, spaceLength: Tenths? = nil, position: Position = Position(), color: Color? = nil) {
         self.type = type
@@ -34,6 +43,8 @@ public struct Bracket {
 
 extension Bracket: Equatable {}
 extension Bracket: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case type
         case number
@@ -44,6 +55,8 @@ extension Bracket: Codable {
         case spaceLength = "space-length"
         case color
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -56,5 +69,22 @@ extension Bracket: Codable {
         self.spaceLength = try container.decodeIfPresent(Tenths.self, forKey: .spaceLength)
         self.position = try Position(from: decoder)
         self.color = try container.decodeIfPresent(Color.self, forKey: .color)
+    }
+}
+
+import XMLCoder
+extension Bracket: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.type, CodingKeys.number:
+            return .attribute
+        case CodingKeys.lineEnd, CodingKeys.endLength, CodingKeys.lineType, CodingKeys.dashLength, CodingKeys.spaceLength, CodingKeys.color:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

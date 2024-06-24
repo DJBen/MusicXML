@@ -10,9 +10,15 @@
 /// tuplet. If any of these elements are absent, their values are based on the time-modification
 /// element.
 public struct TupletPortion {
+    // MARK: - Instance Properties
+
+    // MARK: Elements
+
     public let tupletNumber: TupletNumber?
     public let tupletType: TupletType?
     public let tupletDots: [TupletDot]
+
+    // MARK: - Initializers
 
     public init(tupletNumber: TupletNumber? = nil, tupletType: TupletType? = nil, tupletDots: [TupletDot]) {
         self.tupletNumber = tupletNumber
@@ -23,3 +29,10 @@ public struct TupletPortion {
 
 extension TupletPortion: Equatable {}
 extension TupletPortion: Codable {}
+
+import XMLCoder
+extension TupletPortion: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
+    }
+}

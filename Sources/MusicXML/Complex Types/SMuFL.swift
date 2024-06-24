@@ -21,8 +21,12 @@
 // <!ENTITY % smufl
 //    "smufl %smufl-glyph-name; #IMPLIED">
 public struct SMuFL {
+    // MARK: - Instance Properties
+
     // TODO: Consider nesting Glyph in here.
     public let glyph: SMuFLGlyph
+
+    // MARK: - Initializers
 
     public init(glyph: SMuFLGlyph) {
         self.glyph = glyph
@@ -31,3 +35,10 @@ public struct SMuFL {
 
 extension SMuFL: Equatable {}
 extension SMuFL: Codable {}
+
+import XMLCoder
+extension SMuFL: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        return .element
+    }
+}

@@ -18,17 +18,21 @@
 public struct Font {
     // MARK: - Instance Properties
 
-    // MARK: - Attributes
+    // MARK: Attributes
 
     // FIXME: Font.family should be `CommaSeparatedText`
-    public let family: String?
+    public let family: CommaSeparatedText?
 
-    public let style: FontStyle?
+    // MARK: Attribute Groups
+
     public let size: FontSize?
+    public let style: FontStyle?
     public let weight: FontWeight?
 
+    // MARK: - Initializers
+
     public init(
-        family: String? = nil,
+        family: CommaSeparatedText? = nil,
         style: FontStyle? = nil,
         size: FontSize? = nil,
         weight: FontWeight? = nil
@@ -40,14 +44,19 @@ public struct Font {
     }
 }
 
-extension Font: Equatable {}
+extension Font: Equatable { }
+
 extension Font: Codable {
-    private enum CodingKeys: String, CodingKey {
+    // MARK: - Codable
+
+    internal enum CodingKeys: String, CodingKey, XMLChoiceCodingKey {
         case family = "font-family"
         case style = "font-style"
         case size = "font-size"
         case weight = "font-weight"
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -55,5 +64,34 @@ extension Font: Codable {
         try container.encodeIfPresent(style, forKey: .style)
         try container.encodeIfPresent(size, forKey: .size)
         try container.encodeIfPresent(weight, forKey: .weight)
+    }
+
+    // MARK: Decodable
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.family = try container.decodeIfPresent(CommaSeparatedText.self, forKey: .family)
+        self.style = try container.decodeIfPresent(FontStyle.self, forKey: .style)
+        self.size = try container.decodeIfPresent(FontSize.self, forKey: .size)
+        self.weight = try container.decodeIfPresent(FontWeight.self, forKey: .weight)
+    }
+}
+
+extension Font.CodingKeys: XMLAttributeGroupCodingKey { }
+
+import XMLCoder
+
+extension Font: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.family:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

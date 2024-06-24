@@ -18,10 +18,6 @@
 public struct Ending {
     // MARK: - Instance Properties
 
-    // MARK: Value
-
-    public let value: String // e.g., 1., 2.
-
     // MARK: Attributes
 
     /// The number attribute reflects the numeric values of what is under the ending line. Single
@@ -36,6 +32,10 @@ public struct Ending {
     // MARK: Attribute Groups
 
     public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let value: String // e.g., 1., 2.
 
     // MARK: - Initializers
 
@@ -62,6 +62,8 @@ public struct Ending {
 
 extension Ending: Equatable {}
 extension Ending: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case value = ""
         case number
@@ -71,6 +73,8 @@ extension Ending: Codable {
         case textX = "text-x"
         case textY = "text-y"
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         // Decode attribute groups
@@ -87,21 +91,22 @@ extension Ending: Codable {
         self.value = try container.decode(String.self, forKey: .value)
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
-        try printStyle.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(value, forKey: .value)
         try container.encode(number, forKey: .number)
         try container.encode(type, forKey: .type)
-        try container.encodeIfPresent(printObject, forKey: .printObject)
+        try container.encodeIfPresent(YesNo(printObject), forKey: .printObject)
         try container.encodeIfPresent(endLength, forKey: .endLength)
         try container.encodeIfPresent(textX, forKey: .textX)
         try container.encodeIfPresent(textY, forKey: .textY)
+        try printStyle.encode(to: encoder)
     }
 }
 
 import XMLCoder
-
 extension Ending: DynamicNodeEncoding {
     public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
         switch key {

@@ -25,6 +25,10 @@
 ///     The default for last-beat is "24", not "75".
 ///
 public struct TrillSound {
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     let startNote: StartNote?
     let trillStep: TrillStep?
     let twoNoteTurn: TwoNoteTurn?
@@ -32,6 +36,8 @@ public struct TrillSound {
     let beats: Int?
     let secondBeat: Int?
     let lastBeat: Int?
+
+    // MARK: - Initializers
 
     public init(startNote: StartNote? = nil, trillStep: TrillStep? = nil, twoNoteTurn: TwoNoteTurn? = nil, accelerate: Bool? = nil, beats: Int? = nil, secondBeat: Int? = nil, lastBeat: Int? = nil) {
         self.startNote = startNote
@@ -47,7 +53,9 @@ public struct TrillSound {
 extension TrillSound: Equatable {}
 
 extension TrillSound: Codable {
-    private enum CodingKeys: String, CodingKey {
+    // MARK: - Codable
+
+    internal enum CodingKeys: String, CodingKey {
         case startNote = "start-note"
         case trillStep = "trill-step"
         case twoNoteTurn = "two-note-turn"
@@ -55,5 +63,32 @@ extension TrillSound: Codable {
         case beats
         case secondBeat = "second-beat"
         case lastBeat = "last-beat"
+    }
+
+    // MARK: Decodable
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.startNote = try container.decodeIfPresent(StartNote.self, forKey: .startNote)
+        self.trillStep = try container.decodeIfPresent(TrillStep.self, forKey: .trillStep)
+        self.twoNoteTurn = try container.decodeIfPresent(TwoNoteTurn.self, forKey: .twoNoteTurn)
+        self.accelerate = try container.decodeIfPresent(Bool.self, forKey: .accelerate)
+        self.beats = try container.decodeIfPresent(Int.self, forKey: .beats)
+        self.secondBeat = try container.decodeIfPresent(Int.self, forKey: .secondBeat)
+        self.lastBeat = try container.decodeIfPresent(Int.self, forKey: .lastBeat)
+    }
+}
+
+extension TrillSound.CodingKeys: XMLAttributeGroupCodingKey {}
+
+import XMLCoder
+extension TrillSound: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.startNote, CodingKeys.trillStep, CodingKeys.twoNoteTurn, CodingKeys.accelerate, CodingKeys.beats, CodingKeys.secondBeat, CodingKeys.lastBeat:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

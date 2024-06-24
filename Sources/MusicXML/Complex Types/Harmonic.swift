@@ -12,12 +12,9 @@
 /// harmonic element refer to the use of the circular harmonic symbol, typically but not always used
 /// with natural harmonics.
 public struct Harmonic {
-    // MARK: - Elements
+    // MARK: - Instance Properties
 
-    public var naturalArtificial: NaturalArtificial?
-    public var baseSoundingTouchingPitch: BaseSoundingTouchingPitch?
-
-    // MARK: - Attributes
+    // MARK: Attributes
 
     public var printObject: Bool?
 
@@ -26,6 +23,13 @@ public struct Harmonic {
     // MARK: - Attribute Groups
 
     public var printStyle: PrintStyle
+
+    // MARK: Elements
+
+    public var naturalArtificial: NaturalArtificial?
+    public var baseSoundingTouchingPitch: BaseSoundingTouchingPitch?
+
+    // MARK: - Initializers
 
     public init(
         naturalArtificial: NaturalArtificial? = nil,
@@ -66,6 +70,8 @@ extension Harmonic {
 }
 
 extension Harmonic: Codable {
+    // MARK: - Codable
+
     public enum CodingKeys: String, CodingKey {
         case naturalArtificial
         case baseSoundingTouchingPitch
@@ -81,6 +87,8 @@ extension Harmonic: Codable {
         case sounding = "sounding-pitch"
         case touching = "touching-pitch"
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         self.printStyle = try PrintStyle(from: decoder)
@@ -105,6 +113,8 @@ extension Harmonic: Codable {
         self.placement = try container.decodeIfPresent(AboveBelow.self, forKey: .placement)
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         try printStyle.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -126,7 +136,7 @@ extension Harmonic: Codable {
                 try container.encode(Empty(), forKey: .artificial)
             }
         }
-        try container.encodeIfPresent(printObject, forKey: .printObject)
+        try container.encodeIfPresent(YesNo(printObject), forKey: .printObject)
         try container.encodeIfPresent(placement, forKey: .placement)
     }
 }
@@ -138,3 +148,15 @@ extension Harmonic.BaseSoundingTouchingPitch: Equatable {}
 extension Harmonic.BaseSoundingTouchingPitch: Codable {}
 
 extension Harmonic: Equatable {}
+
+import XMLCoder
+extension Harmonic: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        switch key {
+        case CodingKeys.printObject, CodingKeys.placement:
+            return .attribute
+        default:
+            return .element
+        }
+    }
+}

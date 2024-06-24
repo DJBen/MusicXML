@@ -8,10 +8,19 @@
 /// The mordent type is used for both represents the mordent sign with the vertical line and the
 /// inverted-mordent sign without the line. The long attribute is "no" by default.
 public struct Mordent {
-    public let value: PrintStyleTrillSound
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let long: Bool?
     public let approach: AboveBelow?
     public let departure: AboveBelow?
+
+    // MARK: Attribute Groups
+
+    public let value: PrintStyleTrillSound
+
+    // MARK: - Initializers
 
     public init(
         value: PrintStyleTrillSound = PrintStyleTrillSound(),
@@ -28,20 +37,25 @@ public struct Mordent {
 
 extension Mordent: Equatable {}
 extension Mordent: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case long
         case approach
         case departure
-        case value = ""
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try value.encode(to: encoder)
-        try container.encodeIfPresent(long, forKey: .long)
+        try container.encodeIfPresent(YesNo(long), forKey: .long)
         try container.encodeIfPresent(approach, forKey: .approach)
         try container.encodeIfPresent(departure, forKey: .departure)
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -55,11 +69,6 @@ extension Mordent: Codable {
 import XMLCoder
 extension Mordent: DynamicNodeEncoding {
     public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
-        switch key {
-        case CodingKeys.value:
-            return .element
-        default:
-            return .attribute
-        }
+        return .attribute
     }
 }

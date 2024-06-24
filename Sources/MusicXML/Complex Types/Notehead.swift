@@ -9,11 +9,23 @@
 /// durations. For the enclosed shapes, the default is to be hollow for half notes and longer, and
 /// filled otherwise. The filled attribute can be set to change this if needed.
 public struct Notehead {
-    public let value: NoteheadValue
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let filled: Bool?
     public let parentheses: Bool?
-    public let font: Font
     public let color: Color?
+
+    // MARK: Attribute Groups
+
+    public let font: Font
+
+    // MARK: Value
+
+    public let value: NoteheadValue
+
+    // MARK: - Initializers
 
     public init(_ value: NoteheadValue, filled: Bool? = nil, parentheses: Bool? = nil, font: Font = Font(), color: Color? = nil) {
         self.value = value
@@ -26,12 +38,16 @@ public struct Notehead {
 
 extension Notehead: Equatable {}
 extension Notehead: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case value = ""
         case filled
         case parentheses
         case color
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         self.font = try Font(from: decoder)
@@ -42,12 +58,14 @@ extension Notehead: Codable {
         self.color = try container.decodeIfPresent(Color.self, forKey: .color)
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
-        try font.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(value, forKey: .value)
-        try container.encodeIfPresent(filled, forKey: .filled)
-        try container.encodeIfPresent(parentheses, forKey: .parentheses)
+        try container.encodeIfPresent(YesNo(filled), forKey: .filled)
+        try container.encodeIfPresent(YesNo(parentheses), forKey: .parentheses)
+        try font.encode(to: encoder)
         try container.encodeIfPresent(color, forKey: .color)
     }
 }

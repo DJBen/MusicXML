@@ -12,16 +12,28 @@
 /// the bend is to be done at the bridge with a whammy or vibrato bar. The content of the element
 /// indicates how this should be notated.
 public struct Bend {
-    public let printStyle: PrintStyle
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let accelerate: Bool?
     /// The beats attribute specifies the beats used in a trill-sound or bend-sound. It is a decimal
     /// value with a minimum value of 2.
     public let beats: Bool?
     public let firstBeat: Double?
     public let lastBeat: Double?
+
+    // MARK: Attribute Groups
+
+    public let printStyle: PrintStyle
+
+    // MARK: Elements
+
     public let bendAlter: Double?
     public let prependOrRelease: PreBendOrRelease?
     public let withBar: PlacementText?
+
+    // MARK: - Initializers
 
     public init(printStyle: PrintStyle = PrintStyle(), accelerate: Bool? = nil, beats: Bool? = nil, firstBeat: Double? = nil, lastBeat: Double? = nil, bendAlter: Double? = nil, prependOrRelease: PreBendOrRelease? = nil, withBar: PlacementText? = nil) {
         self.printStyle = printStyle
@@ -47,6 +59,8 @@ extension Bend.PreBendOrRelease: Codable {}
 
 extension Bend: Equatable {}
 extension Bend: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case accelerate
         case beats
@@ -56,6 +70,8 @@ extension Bend: Codable {
         case prependOrRelease
         case withBar
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -69,15 +85,32 @@ extension Bend: Codable {
         withBar = try container.decodeIfPresent(PlacementText.self, forKey: .withBar)
     }
 
+    // MARK: Encodable
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try printStyle.encode(to: encoder)
-        try container.encodeIfPresent(accelerate, forKey: .accelerate)
-        try container.encodeIfPresent(beats, forKey: .beats)
+        try container.encodeIfPresent(YesNo(accelerate), forKey: .accelerate)
+        try container.encodeIfPresent(YesNo(beats), forKey: .beats)
         try container.encodeIfPresent(firstBeat, forKey: .firstBeat)
         try container.encodeIfPresent(lastBeat, forKey: .lastBeat)
         try container.encodeIfPresent(bendAlter, forKey: .bendAlter)
         try container.encodeIfPresent(prependOrRelease, forKey: .prependOrRelease)
         try container.encodeIfPresent(withBar, forKey: .withBar)
+    }
+}
+
+import XMLCoder
+extension Bend: DynamicNodeEncoding {
+    public static func nodeEncoding(for key: CodingKey) -> XMLEncoder.NodeEncoding {
+        if key is XMLAttributeGroupCodingKey {
+            return .attribute
+        }
+        switch key {
+        case CodingKeys.accelerate, CodingKeys.beats, CodingKeys.firstBeat, CodingKeys.lastBeat:
+            return .attribute
+        default:
+            return .element
+        }
     }
 }

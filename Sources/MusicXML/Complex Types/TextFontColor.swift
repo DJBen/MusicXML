@@ -8,13 +8,25 @@
 /// The text-font-color type represents text with optional font and color information. It is used
 /// for the elision element.
 public struct TextFontColor {
-    public let value: String
-    public let font: Font
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let color: Color?
-    public let textDecoration: TextDecoration
     public let textRotation: Double?
     public let letterSpacing: NumberOrNormal?
     public let dir: TextDirection?
+
+    // MARK: Attribute Groups
+
+    public let font: Font
+    public let textDecoration: TextDecoration
+
+    // MARK: Value
+
+    public let value: String
+
+    // MARK: - Initializers
 
     public init(_ value: String, font: Font = Font(), color: Color? = nil, textDecoration: TextDecoration = TextDecoration(), textRotation: Double? = nil, letterSpacing: NumberOrNormal? = nil, dir: TextDirection? = nil) {
         self.value = value
@@ -29,6 +41,8 @@ public struct TextFontColor {
 
 extension TextFontColor: Equatable {}
 extension TextFontColor: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case color
         case textRotation
@@ -36,6 +50,8 @@ extension TextFontColor: Codable {
         case dir
         case value = ""
     }
+
+    // MARK: Encodable
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -47,6 +63,8 @@ extension TextFontColor: Codable {
         try container.encodeIfPresent(letterSpacing, forKey: .letterSpacing)
         try container.encodeIfPresent(dir, forKey: .dir)
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

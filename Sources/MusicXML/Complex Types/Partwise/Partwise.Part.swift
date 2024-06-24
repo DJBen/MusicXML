@@ -15,7 +15,7 @@ extension Partwise {
     //    id IDREF #REQUIRED
     // >
     public struct Part {
-        // MARK: - Properties
+        // MARK: - Instance Properties
 
         // MARK: Attributes
 
@@ -45,3 +45,5 @@ extension Partwise.Part: Codable {
         case measures = "measure"
     }
 }
+
+import XMLCoder

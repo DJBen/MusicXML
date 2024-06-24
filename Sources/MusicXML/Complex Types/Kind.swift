@@ -12,10 +12,6 @@
 public struct Kind {
     // MARK: - Instance Properties
 
-    // MARK: Value
-
-    public let value: KindValue
-
     // MARK: Attributes
 
     public let useSymbols: Bool?
@@ -29,6 +25,12 @@ public struct Kind {
     // MARK: Attribute Groups
 
     public let printStyle: PrintStyle
+
+    // MARK: Value
+
+    public let value: KindValue
+
+    // MARK: - Initializers
 
     public init(
         _ value: KindValue,
@@ -93,6 +95,8 @@ extension Kind {
 
 extension Kind: Equatable {}
 extension Kind: Codable {
+    // MARK: - Codable
+
     private enum CodingKeys: String, CodingKey {
         case useSymbols = "use-symbols"
         case text
@@ -103,6 +107,8 @@ extension Kind: Codable {
         case vAlign = "valign"
         case value = ""
     }
+
+    // MARK: Decodable
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -115,6 +121,21 @@ extension Kind: Codable {
         self.hAlign = try container.decodeIfPresent(LeftCenterRight.self, forKey: .hAlign)
         self.vAlign = try container.decodeIfPresent(VAlign.self, forKey: .vAlign)
         self.value = try container.decode(KindValue.self, forKey: .value)
+    }
+
+    // MARK: Encodable
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(value, forKey: .value)
+        try container.encodeIfPresent(YesNo(useSymbols), forKey: .useSymbols)
+        try container.encodeIfPresent(text, forKey: .text)
+        try container.encodeIfPresent(YesNo(stackDegrees), forKey: .stackDegrees)
+        try container.encodeIfPresent(YesNo(parenthesesDegrees), forKey: .parenthesesDegrees)
+        try container.encodeIfPresent(YesNo(bracketDegrees), forKey: .bracketDegrees)
+        try container.encodeIfPresent(hAlign, forKey: .hAlign)
+        try container.encodeIfPresent(vAlign, forKey: .vAlign)
+        try printStyle.encode(to: encoder)
     }
 }
 

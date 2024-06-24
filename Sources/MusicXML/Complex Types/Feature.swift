@@ -9,8 +9,17 @@
 /// represents the type of the feature and the element content represents its value. This type is
 /// flexible to allow for different analyses.
 public struct Feature {
-    public let value: String
+    // MARK: - Instance Properties
+
+    // MARK: Attributes
+
     public let type: String?
+
+    // MARK: Value
+
+    public let value: String
+
+    // MARK: - Initializers
 
     public init(_ value: String, type: String? = nil) {
         self.value = value
@@ -20,6 +29,8 @@ public struct Feature {
 
 extension Feature: Equatable {}
 extension Feature: Codable {
+    // MARK: - Codable
+
     enum CodingKeys: String, CodingKey {
         case type
         case value = ""
